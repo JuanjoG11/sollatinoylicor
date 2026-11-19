@@ -368,9 +368,17 @@ function calcChange() {
 }
 function setPay(m, btn) {
   S.pay = m;
-  document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.pay-btn').forEach(function(b) { b.classList.remove('on'); });
   btn.classList.add('on');
-  document.getElementById('cashBlock').style.display = m === 'efectivo' ? 'flex' : 'none';
+  // Efectivo: mostrar cambio
+  var cashBlock    = document.getElementById('cashBlock');
+  var soporteBlock = document.getElementById('soporteBlock');
+  if (cashBlock)    cashBlock.style.display    = (m === 'efectivo') ? 'flex' : 'none';
+  // Wero / Datafono / RIB: mostrar bloque soporte comprobante
+  if (soporteBlock) {
+    var needsSoporte = ['wero','datafono','rib'].includes(m);
+    soporteBlock.classList.toggle('hidden', !needsSoporte);
+  }
 }
 
 async function checkout() {
@@ -408,8 +416,11 @@ async function checkout() {
       cashRec: S.pay==='efectivo' ? parseFloat(document.getElementById('cashIn').value)||0 : null,
       ts: new Date().toISOString() };
     await save.venta(v);
-    // Crear soporte si hay foto y pago electronico
-    if (S._fotoData && ['bizum','tarjeta','transferencia'].includes(S.pay)) {
+    // Crear soporte de pago para metodos electronicos
+    var fotoParaSoporte = window._soporteCartData || S._fotoData || null;
+    if (['wero','datafono','rib'].includes(S.pay)) {
+      await crearSoporteVenta(v, fotoParaSoporte);
+    } else if (S._fotoData && !['efectivo','credito'].includes(S.pay)) {
       await crearSoporteVenta(v, S._fotoData);
     }
     // Si es credito, crear deuda
@@ -417,8 +428,9 @@ async function checkout() {
       await crearDeuda(v, S._fotoData || null);
       toast('Deuda registrada para ' + clientName, 'wrn');
     }
-    // Limpiar foto
+    // Limpiar foto y soporte
     S._fotoData = null;
+    quitarSoporteCart();
     var fotoInd = document.getElementById('fotoIndicator');
     if (fotoInd) fotoInd.style.display = 'none';
     if (clientId) {
@@ -1452,6 +1464,59 @@ window.guardarFoto = guardarFoto;
 window.setCat=setCat;window.onBcKey=onBcKey;window.onBcInput=onBcInput;
 window.toggleCam=toggleCam;window.stopCam=stopCam;
 window.addToCart=addToCart;window.chQty=chQty;window.rmFromCart=rmFromCart;window.clearCart=clearCart;
+
+// SOPORTE EN CARRITO (Wero / Datafono / RIB)
+window._soporteCartData = null;
+var _soporteCartStream  = null;
+
+function onSoporteCart(input) {
+  var file = input.files[0]; if (!file) return;
+  var r = new FileReader();
+  r.onload = function(e) {
+    window._soporteCartData = e.target.result;
+    _showSoportePreview(e.target.result);
+    toast('Comprobante adjunto','ok');
+  };
+  r.readAsDataURL(file);
+}
+function _showSoportePreview(dataUrl) {
+  var prev = document.getElementById('soportePreviewCart'); if (!prev) return;
+  prev.innerHTML = '<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:contain;border-radius:8px;"/>';
+  prev.style.borderColor = 'var(--green)';
+  var qBtn = document.getElementById('btnQuitarSoporte');
+  if (qBtn) qBtn.style.display = 'block';
+}
+async function usarCamaraSoporteCart() {
+  try {
+    _soporteCartStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    var prev = document.getElementById('soportePreviewCart');
+    var vid  = document.createElement('video');
+    vid.srcObject=_soporteCartStream; vid.autoplay=true;
+    vid.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:8px;';
+    var capBtn=document.createElement('button');
+    capBtn.textContent='Capturar';
+    capBtn.style.cssText='position:absolute;bottom:6px;left:50%;transform:translateX(-50%);padding:.3rem .9rem;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:700;font-family:inherit;';
+    prev.style.position='relative'; prev.innerHTML=''; prev.appendChild(vid); prev.appendChild(capBtn);
+    capBtn.onclick=function(){
+      var c=document.createElement('canvas'); c.width=vid.videoWidth; c.height=vid.videoHeight;
+      c.getContext('2d').drawImage(vid,0,0);
+      window._soporteCartData=c.toDataURL('image/jpeg',0.8);
+      _soporteCartStream.getTracks().forEach(function(t){t.stop();}); _soporteCartStream=null;
+      _showSoportePreview(window._soporteCartData);
+      toast('Captura lista','ok');
+    };
+  } catch(e){toast('Camara no disponible','err');}
+}
+function quitarSoporteCart() {
+  window._soporteCartData=null;
+  if(_soporteCartStream){_soporteCartStream.getTracks().forEach(function(t){t.stop();});_soporteCartStream=null;}
+  var prev=document.getElementById('soportePreviewCart');
+  if(prev){prev.innerHTML='Pulsa para subir imagen del comprobante';prev.style.borderColor='var(--border)';}
+  var qBtn=document.getElementById('btnQuitarSoporte'); if(qBtn) qBtn.style.display='none';
+}
+window.onSoporteCart=onSoporteCart;
+window.usarCamaraSoporteCart=usarCamaraSoporteCart;
+window.quitarSoporteCart=quitarSoporteCart;
 window.calcTotals=calcTotals;window.calcChange=calcChange;window.setPay=setPay;window.checkout=checkout;
 window.closeInvoice=closeInvoice;window.printInvoice=printInvoice;window.dlPDF=dlPDF;
 window.openProdModal=openProdModal;window.closeProdModal=closeProdModal;window.saveProd=saveProd;window.delProd=delProd;window.setEm=setEm;window.genBC=genBC;
@@ -2203,6 +2268,11 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+
+
+
+
+
 
 
 

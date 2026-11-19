@@ -208,10 +208,21 @@
 
           <div class="pay-label" style="margin-top:.3rem">Mtodo de pago</div>
           <div class="pay-grid">
-            <button class="pay-btn on" data-m="efectivo" onclick="setPay('efectivo',this)"> Efectivo</button>
-            <button class="pay-btn"    data-m="tarjeta"  onclick="setPay('tarjeta',this)">  Tarjeta</button>
-            <button class="pay-btn"    data-m="bizum"    onclick="setPay('bizum',this)">    Bizum</button>
-            <button class="pay-btn"    data-m="credito"  onclick="setPay('credito',this)">  Crdito</button>
+            <button class="pay-btn on" data-m="efectivo"  onclick="setPay('efectivo',this)">
+              <span class="pm-icon">  </span> Efectivo
+            </button>
+            <button class="pay-btn"    data-m="datafono"  onclick="setPay('datafono',this)">
+              <span class="pm-icon">  </span> Datafono
+            </button>
+            <button class="pay-btn"    data-m="wero"      onclick="setPay('wero',this)">
+              <span class="pm-icon">  </span> Wero
+            </button>
+            <button class="pay-btn"    data-m="rib"       onclick="setPay('rib',this)">
+              <span class="pm-icon">  </span> RIB Empresa
+            </button>
+            <button class="pay-btn"    data-m="credito"   onclick="setPay('credito',this)" style="grid-column:span 2;">
+              <span class="pm-icon">  </span> Credito (Fiado)
+            </button>
           </div>
 
           <div class="cash-block" id="cashBlock">
@@ -222,6 +233,31 @@
             <div class="cash-row">
               <label>Cambio</label>
               <span class="change-amt" id="changeOut">0.00</span>
+            </div>
+          </div>
+
+          <!-- Soporte electronico: Wero / Datafono / RIB -->
+          <div class="soporte-block hidden" id="soporteBlock">
+            <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:.4rem;">
+              Adjuntar comprobante <span style="color:var(--text-3);font-weight:400;">(opcional)</span>
+            </div>
+            <div id="soportePreviewCart"
+              style="width:100%;height:80px;background:var(--bg);border:2px dashed var(--border);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);font-size:.75rem;overflow:hidden;transition:border-color .15s;position:relative;"
+              onclick="document.getElementById('soporteCartInput').click()"
+              onmouseover="this.style.borderColor='var(--accent)'"
+              onmouseout="if(!window._soporteCartData)this.style.borderColor='var(--border)'">
+              Pulsa para subir imagen del comprobante
+            </div>
+            <input type="file" id="soporteCartInput" accept="image/*" style="display:none" onchange="onSoporteCart(this)"/>
+            <div style="display:flex;gap:.35rem;margin-top:.35rem;">
+              <button onclick="usarCamaraSoporteCart()"
+                style="flex:1;padding:.35rem;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text-2);font-size:.7rem;cursor:pointer;font-family:inherit;">
+                Camara
+              </button>
+              <button id="btnQuitarSoporte" onclick="quitarSoporteCart()"
+                style="display:none;flex:1;padding:.35rem;background:var(--red-bg);border:1.5px solid rgba(239,68,68,.3);border-radius:var(--r);color:var(--red);font-size:.7rem;cursor:pointer;font-family:inherit;">
+                Quitar foto
+              </button>
             </div>
           </div>
 
@@ -888,9 +924,9 @@
         <input id="smMonto" class="fc" type="number" placeholder="0.00" step="0.01"/></div>
       <div class="fg"><label>Metodo de pago</label>
         <select id="smMetodo" class="fc">
-          <option value="transferencia">Transferencia bancaria</option>
-          <option value="bizum">Bizum</option>
-          <option value="tarjeta">Tarjeta</option>
+          <option value="wero">Wero</option>
+          <option value="datafono">Datafono</option>
+          <option value="rib">RIB Empresa</option>
           <option value="efectivo">Efectivo</option>
           <option value="otro">Otro</option>
         </select>
@@ -1051,6 +1087,9 @@
 <script src="app.js"></script>
 </body>
 </html>
+
+
+
 
 
 
