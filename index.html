@@ -1,0 +1,1061 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>POS  Sol Latino & Licores San Pedro</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!--  SPLASH  -->
+<div id="splash">
+  <div class="sp-stage">
+    <div class="sp-duel">
+      <div class="sp-brand sol">
+        <img src="LOGO EL SOL LATINO.PNG" alt="El Sol Latino" class="sp-logo-img"/>
+        <div class="sp-brand-tag">Pequeos placeres,<br>grandes momentos!</div>
+      </div>
+      <div class="sp-sep">
+        <div class="sp-line"></div>
+        <div class="sp-amp">&amp;</div>
+        <div class="sp-line"></div>
+      </div>
+      <div class="sp-brand lic">
+        <img src="LOGO LICORES SAN PEDRO PNG.png" alt="Licores San Pedro" class="sp-logo-img"/>
+        <div class="sp-brand-tag">Licor  Rumba  Snacks</div>
+      </div>
+    </div>
+
+    <div class="sp-wordmark">
+      <span class="w1">SISTEMA</span>
+      <span class="w2">POS</span>
+    </div>
+
+    <div class="sp-bar-wrap">
+      <div class="sp-bar-track"><div class="sp-bar-fill"></div></div>
+      <div class="sp-hint" style="margin-top:.5rem">Iniciando sistema</div>
+    </div>
+  </div>
+</div>
+
+
+<!--  APP  -->
+<div id="app" class="hidden">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sb-head">
+      <div class="company-switcher">
+        <div class="cs-btn sol on" data-co="sol" onclick="switchCo('sol')">
+          <img src="LOGO EL SOL LATINO.PNG" alt="" class="cs-logo"/>
+          <span class="cs-label">Sol Latino</span>
+        </div>
+        <div class="cs-btn lic" data-co="lic" onclick="switchCo('lic')">
+          <img src="LOGO LICORES SAN PEDRO PNG.png" alt="" class="cs-logo"/>
+          <span class="cs-label">San Pedro</span>
+        </div>
+      </div>
+    </div>
+
+        <nav class="sb-nav">
+      <a class="nav-link on" data-s="pos" onclick="go('pos')" title="Punto de Venta">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="nl">Punto de Venta</span></a>
+      <a class="nav-link" data-s="dashboard" onclick="go('dashboard')" title="Dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="nl">Dashboard</span></a>
+      <a class="nav-link" data-s="productos" onclick="go('productos')" title="Productos">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        <span class="nl">Productos</span></a>
+      <a class="nav-link" data-s="ventas" onclick="go('ventas')" title="Ventas">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        <span class="nl">Ventas</span></a>
+      <a class="nav-link" data-s="clientes" onclick="go('clientes')" title="Clientes">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span class="nl">Clientes</span></a>
+      <a class="nav-link" data-s="credito" onclick="go('credito')" title="Credito y Deudas">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <span class="nl">Credito / Deudas</span></a>
+      <a class="nav-link" data-s="devoluciones" onclick="go('devoluciones')" title="Devoluciones">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.54"/></svg>
+        <span class="nl">Devoluciones</span></a>
+      <a class="nav-link" data-s="soportes" onclick="go('soportes')" title="Soportes de Pago">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span class="nl">Soportes</span></a>
+      <a class="nav-link" data-s="config" onclick="go('config')" title="Configuracion">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span class="nl">Configuracion</span></a>
+    </nav>
+
+    <div class="sb-foot">
+      <div class="sb-clock" id="sbClock"></div>
+      <div class="sb-pill sol" id="sbPill">Sol Latino</div>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="tb-toggle" onclick="toggleSb()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="tb-title" id="tbTitle"> Punto de Venta</div>
+    <div style="display:flex;align-items:center;gap:.35rem;font-size:.7rem;">
+      <span id="dbDot" style="width:7px;height:7px;border-radius:50%;background:#D1D5DB;flex-shrink:0;transition:background .4s;"></span>
+      <span id="dbLabel" style="color:#9CA3AF;font-size:.68rem;"></span>
+    </div>
+    <div class="tb-right">
+      <div class="company-badge" onclick="cycleCo()">
+        <img id="cbIcon" src="LOGO EL SOL LATINO.PNG" class="cb-logo" alt=""/>
+        <span class="cb-name" id="cbName">Sol Latino</span>
+      </div>
+      <div class="tb-time" id="tbTime"></div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!--  POS  -->
+    <div id="sec-pos" class="section on">
+      <!-- LEFT -->
+      <div class="pos-left">
+        <div class="pos-top">
+          <div class="search-row">
+            <input id="bcIn" class="bc-input" type="text"
+                   placeholder="  Escanea cdigo de barras o busca"
+                   autocomplete="off"
+                   onkeydown="onBcKey(event)"
+                   oninput="onBcInput(this.value)"/>
+            <button class="btn-cam" onclick="toggleCam()" title="Cmara"></button>
+          </div>
+          <div class="cat-row" id="catRow">
+            <div class="cat-chip on" data-cat="all" onclick="setCat('all',this)">Todos</div>
+            <div class="cat-chip" data-cat="bebidas"  onclick="setCat('bebidas',this)"> Bebidas</div>
+            <div class="cat-chip" data-cat="snacks"   onclick="setCat('snacks',this)"> Snacks</div>
+            <div class="cat-chip" data-cat="licores"  onclick="setCat('licores',this)"> Licores</div>
+            <div class="cat-chip" data-cat="comida"   onclick="setCat('comida',this)"> Comida</div>
+            <div class="cat-chip" data-cat="otros"    onclick="setCat('otros',this)"> Otros</div>
+          </div>
+        </div>
+
+        <!-- Camera -->
+        <div id="camWrap" class="cam-wrap hidden">
+          <video id="camVid" autoplay muted playsinline></video>
+          <div class="cam-ui">
+            <div class="cam-frame"><div class="cam-laser"></div></div>
+          </div>
+          <button class="btn-camclose" onclick="stopCam()"> Cerrar</button>
+        </div>
+
+        <div class="prod-grid" id="prodGrid"></div>
+      </div>
+
+      <!-- RIGHT / CART -->
+      <div class="pos-right">
+        <div class="cart-hd">
+          <div class="cart-hd-top">
+            <div class="cart-title">Carrito</div>
+            <button class="cart-clear" onclick="clearCart()"> Vaciar</button>
+          </div>
+          <select class="cart-client" id="cartClient">
+            <option value=""> Cliente genrico</option>
+          </select>
+        </div>
+
+        <div class="cart-body" id="cartBody">
+          <div class="cart-empty">
+            <div class="ce-icon"></div>
+            <div class="ce-t">Carrito vaco</div>
+            <div class="ce-s">Escanea o selecciona un producto</div>
+          </div>
+        </div>
+
+        <div class="cart-ft">
+          <div class="sum-row">
+            <span>Subtotal</span>
+            <span id="sumSub">0.00</span>
+          </div>
+          <div class="sum-row">
+            <span>Descuento</span>
+            <span class="disc-wrap">
+              <input id="discIn" type="number" value="0" min="0" max="100" onchange="calcTotals()"/>
+              <span class="disc-pct">%</span>
+            </span>
+            <span class="disc-val" id="sumDisc">0.00</span>
+          </div>
+          <div class="sum-row tax">
+            <span>IVA 21%</span>
+            <span id="sumTax">0.00</span>
+          </div>
+          <div class="sum-row big">
+            <span>Total</span>
+            <span id="sumTotal">0.00</span>
+          </div>
+
+          <div class="pay-label" style="margin-top:.3rem">Mtodo de pago</div>
+          <div class="pay-grid">
+            <button class="pay-btn on" data-m="efectivo" onclick="setPay('efectivo',this)"> Efectivo</button>
+            <button class="pay-btn"    data-m="tarjeta"  onclick="setPay('tarjeta',this)">  Tarjeta</button>
+            <button class="pay-btn"    data-m="bizum"    onclick="setPay('bizum',this)">    Bizum</button>
+            <button class="pay-btn"    data-m="credito"  onclick="setPay('credito',this)">  Crdito</button>
+          </div>
+
+          <div class="cash-block" id="cashBlock">
+            <div class="cash-row">
+              <label>Recibido</label>
+              <input id="cashIn" type="number" placeholder="0.00" oninput="calcChange()" step="0.01" min="0"/>
+            </div>
+            <div class="cash-row">
+              <label>Cambio</label>
+              <span class="change-amt" id="changeOut">0.00</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:.4rem;margin-bottom:.4rem;">
+            <input id="vendedorInput" class="cart-client" placeholder="Vendedor..." autocomplete="off" style="flex:1"/>
+            <input id="notaVenta"     class="cart-client" placeholder="Nota..." autocomplete="off" style="flex:1.4"/>
+          </div>
+          <div style="display:flex;gap:.4rem;">
+            <button onclick="abrirFotoModal()" style="flex:.35;padding:.78rem;border-radius:var(--r2);background:var(--bg);border:1.5px solid var(--border);color:var(--text-2);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;" title="Adjuntar foto de mercancia">Foto</button>
+            <button class="btn-pay" style="flex:1" onclick="checkout()">COBRAR</button>
+          </div>
+          <div id="fotoIndicator" style="display:none;text-align:center;font-size:.68rem;color:var(--green);margin-top:.25rem;font-weight:600;">Foto adjunta a la venta</div>
+        </div>
+      </div>
+    </div><!-- /sec-pos -->
+
+
+    <!--  DASHBOARD  -->
+    <div id="sec-dashboard" class="section">
+      <div class="sec-wrap">
+        <div class="sec-hd">
+          <div class="sec-ht">Dashboard</div>
+          <div class="chart-filter">
+            <button class="cf-btn on" onclick="dashFilter('all',this)">Ambas</button>
+            <button class="cf-btn"    onclick="dashFilter('sol',this)">Sol Latino</button>
+            <button class="cf-btn"    onclick="dashFilter('lic',this)">San Pedro</button>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="kpi">
+            <div class="kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+            <div><div class="kpi-lbl">Ventas hoy</div><div class="kpi-val" id="kHoy">0.00</div><div class="kpi-sub" id="kHoySub">0 transacciones</div></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div><div class="kpi-lbl">Ventas mes</div><div class="kpi-val" id="kMes">0.00</div><div class="kpi-sub" id="kMesSub">este mes</div></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+            <div><div class="kpi-lbl">Productos</div><div class="kpi-val" id="kProds">0</div><div class="kpi-sub" id="kProdsSub">0 con stock bajo</div></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+            <div><div class="kpi-lbl">Clientes</div><div class="kpi-val" id="kClients">0</div><div class="kpi-sub">registrados</div></div>
+          </div>
+
+          <div class="card span2">
+            <div class="card-hd"><div class="card-ht">Ventas  ltimos 7 das</div></div>
+            <canvas id="chartDays" height="110"></canvas>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><div class="card-ht">Top productos</div></div>
+            <canvas id="chartTop" height="190"></canvas>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><div class="card-ht"> Mtodos de pago</div></div>
+            <canvas id="chartPay" height="190"></canvas>
+          </div>
+
+          <div class="card span2">
+            <div class="card-hd"><div class="card-ht">Alertas de stock</div></div>
+            <div class="alerts-list" id="alertsList"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><div class="card-ht">Por empresa</div></div>
+            <canvas id="chartCo" height="190"></canvas>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><div class="card-ht">Ventas</div></div>
+            <div class="recent-list" id="recentList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!--  PRODUCTOS  -->
+    <div id="sec-productos" class="section">
+      <div class="sec-wrap">
+        <div class="sec-hd">
+          <div class="sec-ht">Productos e Inventario</div>
+          <button class="btn btn-pri" onclick="openProdModal()">+ Nuevo producto</button>
+        </div>
+
+        <!-- TABS -->
+        <div style="display:flex;gap:.3rem;margin-bottom:1.1rem;border-bottom:2px solid var(--border);padding-bottom:0;">
+          <button class="tab-btn on" id="tab-catalogo" onclick="switchTab('catalogo')"
+            style="padding:.5rem 1rem;background:none;border:none;font-family:inherit;font-size:.82rem;font-weight:700;color:var(--text);cursor:pointer;border-bottom:3px solid var(--accent);margin-bottom:-2px;transition:all .15s;">
+            Catalogo
+          </button>
+          <button class="tab-btn" id="tab-inventario" onclick="switchTab('inventario')"
+            style="padding:.5rem 1rem;background:none;border:none;font-family:inherit;font-size:.82rem;font-weight:600;color:var(--text-3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;">
+            Inventario y Stock
+          </button>
+        </div>
+
+        <!-- TAB CATALOGO -->
+        <div id="tab-pane-catalogo">
+          <div class="filters">
+            <input  class="f-input"  id="pSrch"  placeholder="Buscar..." oninput="renderProdsTable()"/>
+            <select class="f-select" id="pCoF"   onchange="renderProdsTable()">
+              <option value="all">Ambas empresas</option>
+              <option value="sol">Sol Latino</option>
+              <option value="lic">Licores San Pedro</option>
+            </select>
+            <select class="f-select" id="pCatF"  onchange="renderProdsTable()">
+              <option value="all">Todas las categorias</option>
+              <option value="bebidas">Bebidas</option>
+              <option value="snacks">Snacks</option>
+              <option value="licores">Licores</option>
+              <option value="comida">Comida</option>
+              <option value="otros">Otros</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr>
+                <th>Codigo</th><th>Producto</th><th>Cat.</th><th>Empresa</th>
+                <th>Precio</th><th>Costo</th><th>Margen</th><th>Stock</th><th>Min.</th>
+                <th>Vencimiento</th><th>Estado</th><th>Acciones</th>
+              </tr></thead>
+              <tbody id="prodsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB INVENTARIO -->
+        <div id="tab-pane-inventario" style="display:none;">
+          <div class="stock-sum" style="margin-bottom:1rem;">
+            <div class="ss-card"><div class="ss-ico" style="background:#ECFDF5;color:#10B981;font-size:.9rem;">OK</div><div><div class="ss-lbl">Optimo</div><div class="ss-val" id="ssOk">0</div></div></div>
+            <div class="ss-card w"><div class="ss-ico" style="background:#FFFBEB;color:#F59E0B;font-size:.9rem;">!</div><div><div class="ss-lbl">Stock bajo</div><div class="ss-val" id="ssLow">0</div></div></div>
+            <div class="ss-card r"><div class="ss-ico" style="background:#FEF2F2;color:#EF4444;font-size:.9rem;">X</div><div><div class="ss-lbl">Sin stock</div><div class="ss-val" id="ssZero">0</div></div></div>
+            <div class="ss-card b"><div class="ss-ico" style="background:#EFF6FF;color:#3B82F6;font-size:.9rem;">EU</div><div><div class="ss-lbl">Valor total</div><div class="ss-val" id="ssVal">0.00</div></div></div>
+          </div>
+          <div style="display:flex;gap:.5rem;margin-bottom:.85rem;flex-wrap:wrap;">
+            <input  class="f-input"  id="sSrch" placeholder="Buscar..."      oninput="renderStockTable()" style="flex:1;min-width:160px;"/>
+            <select class="f-select" id="sCoF"  onchange="renderStockTable()">
+              <option value="all">Ambas</option>
+              <option value="sol">Sol Latino</option>
+              <option value="lic">San Pedro</option>
+            </select>
+            <select class="f-select" id="sStF"  onchange="renderStockTable()">
+              <option value="all">Todos</option>
+              <option value="ok">Optimo</option>
+              <option value="low">Stock bajo</option>
+              <option value="zero">Sin stock</option>
+              <option value="venc">Por vencer</option>
+            </select>
+            <button class="btn btn-sec" onclick="openStockModal()">+ Ajuste de stock</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr>
+                <th>Codigo</th><th>Producto</th><th>Empresa</th><th>Stock</th><th>Min.</th>
+                <th>Valor</th><th>Vencimiento</th><th>Lote</th><th>Estado</th><th>Ultimo mov.</th><th>Accion</th>
+              </tr></thead>
+              <tbody id="stockTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div id="sec-ventas" class="section">
+      <div class="sec-wrap">
+        <div class="sec-hd">
+          <div class="sec-ht">Ventas</div>
+          <button class="btn btn-sec" onclick="exportCSV()"> Exportar CSV</button>
+        </div>
+        <div class="filters">
+          <input  type="date" class="f-select" id="vFrom" onchange="renderVentasTable()"/>
+          <input  type="date" class="f-select" id="vTo"   onchange="renderVentasTable()"/>
+          <select class="f-select" id="vCoF"  onchange="renderVentasTable()">
+            <option value="all">Ambas</option>
+            <option value="sol">Sol Latino</option>
+            <option value="lic">San Pedro</option>
+          </select>
+          <select class="f-select" id="vMF"   onchange="renderVentasTable()">
+            <option value="all">Todos los mtodos</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="bizum">Bizum</option>
+            <option value="credito">Crdito</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Factura</th><th>Fecha</th><th>Empresa</th><th>Cliente</th><th>Vendedor</th><th>Items</th><th>Metodo</th><th>Total</th><th>Ver</th>
+            </tr></thead>
+            <tbody id="ventasTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!--  CLIENTES  -->
+    <div id="sec-clientes" class="section">
+      <div class="sec-wrap">
+        <div class="sec-hd">
+          <div class="sec-ht">Clientes</div>
+          <button class="btn btn-pri" onclick="openClientModal()">+ Nuevo</button>
+        </div>
+        <div class="filters">
+          <input class="f-input" id="cSrch" placeholder="Buscar" oninput="renderClientsTable()"/>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Nombre</th><th>Email</th><th>Telfono</th>
+              <th>Total compras</th><th>ltima compra</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="clientsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!--  TRAZABILIDAD  -->
+    <!-- CREDITO / DEUDAS -->
+    <div id="sec-credito" class="section">
+      <div class="sec-wrap">
+        <div class="sec-hd">
+          <div class="sec-ht">Credito y Deudas</div>
+          <div style="display:flex;gap:.5rem;">
+            <button class="btn btn-sec" onclick="filterDeudas('all',this)">Todas</button>
+            <button class="btn btn-sec" onclick="filterDeudas('pendiente',this)">Pendientes</button>
+            <button class="btn btn-sec" onclick="filterDeudas('parcial',this)">Parciales</button>
+            <button class="btn btn-sec" onclick="filterDeudas('pagado',this)">Pagadas</button>
+          </div>
+        </div>
+
+        <!-- KPIs deuda -->
+        <div class="stock-sum" style="margin-bottom:1rem;">
+          <div class="ss-card r">
+            <div class="ss-ico" style="background:#FEF2F2;color:#EF4444;font-size:1rem;">$</div>
+            <div><div class="ss-lbl">Total en deuda</div><div class="ss-val" id="kDeudaTotal">0.00</div></div>
+          </div>
+          <div class="ss-card w">
+            <div class="ss-ico" style="background:#FFFBEB;color:#F59E0B;font-size:1rem;">#</div>
+            <div><div class="ss-lbl">Deudas activas</div><div class="ss-val" id="kDeudaCount">0</div></div>
+          </div>
+          <div class="ss-card" style="border-color:rgba(29,78,216,.3)">
+            <div class="ss-ico" style="background:#EFF6FF;color:#3B82F6;font-size:1rem;">~</div>
+            <div><div class="ss-lbl">Clientes con deuda</div><div class="ss-val" id="kDeudaClients">0</div></div>
+          </div>
+          <div class="ss-card">
+            <div class="ss-ico" style="background:#ECFDF5;color:#10B981;font-size:1rem;">+</div>
+            <div><div class="ss-lbl">Cobrado hoy</div><div class="ss-val" id="kCobradoHoy">0.00</div></div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <input class="f-input" id="deudaSearch" placeholder="Buscar cliente..." oninput="renderDeudas()"/>
+          <select class="f-select" id="deudaCoF" onchange="renderDeudas()">
+            <option value="all">Ambas empresas</option>
+            <option value="sol">Sol Latino</option>
+            <option value="lic">San Pedro</option>
+          </select>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Factura</th><th>Fecha</th><th>Cliente</th><th>Empresa</th>
+              <th>Total</th><th>Pagado</th><th>Deuda</th><th>Estado</th><th>Vendedor</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="deudaTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEVOLUCIONES -->
+    <div id="sec-devoluciones" class="section">
+      <div class="sec-wrap">
+        <div class="sec-hd">
+          <div class="sec-ht">Devoluciones y Notas de Credito</div>
+          <button class="btn btn-pri" onclick="openDevolucionModal()">+ Nueva devolucion</button>
+        </div>
+        <div class="stock-sum" style="margin-bottom:1rem;">
+          <div class="ss-card r"><div class="ss-ico" style="background:#FEF2F2;color:#EF4444;font-size:.9rem;">DEV</div><div><div class="ss-lbl">Total devuelto</div><div class="ss-val" id="kDevTotal">0.00</div></div></div>
+          <div class="ss-card w"><div class="ss-ico" style="background:#FFFBEB;color:#F59E0B;font-size:.9rem;">MES</div><div><div class="ss-lbl">Este mes</div><div class="ss-val" id="kDevMes">0</div></div></div>
+          <div class="ss-card b"><div class="ss-ico" style="background:#EFF6FF;color:#3B82F6;font-size:.9rem;">NC</div><div><div class="ss-lbl">Notas credito</div><div class="ss-val" id="kDevNotas">0</div></div></div>
+          <div class="ss-card"><div class="ss-ico" style="background:#ECFDF5;color:#10B981;font-size:.9rem;">CAM</div><div><div class="ss-lbl">Cambios</div><div class="ss-val" id="kDevCambios">0</div></div></div>
+        </div>
+        <div class="filters">
+          <input class="f-input" id="devSrch" placeholder="Buscar cliente, factura..." oninput="renderDevoluciones()"/>
+          <select class="f-select" id="devCoF" onchange="renderDevoluciones()">
+            <option value="all">Ambas</option><option value="sol">Sol Latino</option><option value="lic">San Pedro</option>
+          </select>
+          <select class="f-select" id="devTipo" onchange="renderDevoluciones()">
+            <option value="all">Todos</option><option value="devolucion">Devolucion</option>
+            <option value="cambio">Cambio</option><option value="nota_credito">Nota credito</option>
+          </select>
+          <input type="date" class="f-select" id="devFrom" onchange="renderDevoluciones()"/>
+          <input type="date" class="f-select" id="devTo"   onchange="renderDevoluciones()"/>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Ref.</th><th>Fecha</th><th>Tipo</th><th>Cliente</th><th>Empresa</th><th>Productos</th><th>Motivo</th><th>Monto</th><th>Accion</th></tr></thead>
+            <tbody id="devTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- SOPORTES -->
+    <div id="sec-soportes" class="section">
+      <div class="sec-wrap">
+        <div class="sec-hd">
+          <div class="sec-ht">Soportes de Pago</div>
+          <button class="btn btn-pri" onclick="openSoporteManual()">+ Subir soporte</button>
+        </div>
+
+        <div class="stock-sum" style="margin-bottom:1rem;">
+          <div class="ss-card">
+            <div class="ss-ico" style="background:#EFF6FF;color:#3B82F6;font-size:1rem;">#</div>
+            <div><div class="ss-lbl">Total soportes</div><div class="ss-val" id="kSoportesTotal">0</div></div>
+          </div>
+          <div class="ss-card">
+            <div class="ss-ico" style="background:#ECFDF5;color:#10B981;font-size:1rem;">$</div>
+            <div><div class="ss-lbl">Monto verificado</div><div class="ss-val" id="kSoportesMonto">0.00</div></div>
+          </div>
+          <div class="ss-card w">
+            <div class="ss-ico" style="background:#FFFBEB;color:#F59E0B;font-size:1rem;">!</div>
+            <div><div class="ss-lbl">Sin soporte</div><div class="ss-val" id="kSinSoporte">0</div></div>
+          </div>
+          <div class="ss-card">
+            <div class="ss-ico" style="background:#F5F3FF;color:#8B5CF6;font-size:1rem;">@</div>
+            <div><div class="ss-lbl">Hoy</div><div class="ss-val" id="kSoportesHoy">0</div></div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <input class="f-input" id="soporteSrch" placeholder="Buscar cliente, referencia..." oninput="renderSoportes()"/>
+          <select class="f-select" id="soporteTipo" onchange="renderSoportes()">
+            <option value="all">Todos los tipos</option>
+            <option value="venta">Ventas</option>
+            <option value="pago_deuda">Pagos de deuda</option>
+            <option value="transferencia">Transferencias</option>
+            <option value="otro">Otros</option>
+          </select>
+          <select class="f-select" id="soporteCoF" onchange="renderSoportes()">
+            <option value="all">Ambas empresas</option>
+            <option value="sol">Sol Latino</option>
+            <option value="lic">San Pedro</option>
+          </select>
+          <input type="date" class="f-select" id="soporteFrom" onchange="renderSoportes()"/>
+          <input type="date" class="f-select" id="soporteTo"   onchange="renderSoportes()"/>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Referencia</th><th>Fecha</th><th>Tipo</th><th>Cliente</th>
+              <th>Empresa</th><th>Metodo</th><th>Monto</th><th>Soporte</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="soportesTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-config" class="section">
+      <div class="sec-wrap">
+        <div class="sec-hd"><div class="sec-ht">Configuracin</div></div>
+        <div class="cfg-grid">
+          <div class="cfg-card">
+            <div class="cfg-ht"> Empresa activa</div>
+            <div class="cfg-row">
+              <label>Empresa seleccionada</label>
+              <select class="cfg-inp" id="cfgCo" onchange="switchCo(this.value)">
+                <option value="sol">El Sol Latino</option>
+                <option value="lic">Licores San Pedro</option>
+              </select>
+            </div>
+          </div>
+          <div class="cfg-card">
+            <div class="cfg-ht"> Pie de factura</div>
+            <div class="cfg-row">
+              <label>Sol Latino</label>
+              <input class="cfg-inp" id="cfgFootSol" value="Gracias por tu visita!  El Sol Latino"/>
+            </div>
+            <div class="cfg-row">
+              <label>Licores San Pedro</label>
+              <input class="cfg-inp" id="cfgFootLic" value="Vuelve pronto!  Licores San Pedro"/>
+            </div>
+            <button class="btn btn-pri" onclick="saveConfig()" style="margin-top:.3rem"> Guardar</button>
+          </div>
+          <div class="cfg-card">
+            <div class="cfg-ht"> Datos</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+              <button class="btn btn-warn" onclick="exportData()"> Exportar backup JSON</button>
+              <button class="btn btn-danger" onclick="clearAll()"> Borrar todo</button>
+            </div>
+          </div>
+          <div class="cfg-card">
+            <div class="cfg-ht"> Demo</div>
+            <button class="btn btn-pri" onclick="loadDemo()">Cargar datos de demostracin</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- /app -->
+
+
+<!--  MODALES  -->
+
+<!-- Producto -->
+<div id="mProd" class="modal-bg hidden">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-ht" id="mProdTitle">Nuevo producto</div>
+      <button class="modal-x" onclick="closeProdModal()"></button>
+    </div>
+    <div class="modal-bd">
+      <div class="form2">
+        <div class="fg"><label>Empresa *</label>
+          <select id="pCo" class="fc">
+            <option value="sol">El Sol Latino</option>
+            <option value="lic">Licores San Pedro</option>
+          </select>
+        </div>
+        <div class="fg"><label>Cdigo de barras *</label>
+          <div class="bc-row">
+            <input id="pBC" class="fc" placeholder="Escanea o escribe"/>
+            <button class="btn-genbc" onclick="genBC()" title="Generar"></button>
+          </div>
+        </div>
+        <div class="fg s2"><label>Nombre *</label>
+          <input id="pName" class="fc" placeholder="Nombre del producto"/>
+        </div>
+        <div class="fg"><label>Categora</label>
+          <select id="pCat" class="fc">
+            <option value="bebidas">Bebidas</option>
+            <option value="snacks">Snacks</option>
+            <option value="licores">Licores</option>
+            <option value="comida">Comida</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
+        <div class="fg"><label>Precio de venta () *</label>
+          <input id="pPrice" class="fc" type="number" placeholder="0.00" step="0.01" min="0"/>
+        </div>
+        <div class="fg"><label>Precio de costo ()</label>
+          <input id="pCost" class="fc" type="number" placeholder="0.00" step="0.01" min="0"/>
+        </div>
+        <div class="fg"><label>Stock inicial</label>
+          <input id="pStock" class="fc" type="number" placeholder="0" min="0"/>
+        </div>
+        <div class="fg"><label>Stock mnimo</label>
+          <input id="pMin" class="fc" type="number" placeholder="5" min="0"/>
+        </div>
+        <div class="fg s2"><label>Descripcin</label>
+          <textarea id="pDesc" class="fc" rows="2" placeholder="Opcional"></textarea>
+        </div>
+        <div class="fg"><label>Fecha de vencimiento</label>
+          <input id="pFechaVenc" class="fc" type="date"/>
+        </div>
+        <div class="fg"><label>Dias alerta previos</label>
+          <input id="pDiasAlerta" class="fc" type="number" value="7" min="1" max="90"/>
+        </div>
+        <div class="fg"><label>Lote</label>
+          <input id="pLote" class="fc" placeholder="LOT-001 (opcional)"/>
+        </div>
+        <div class="fg s2"><label>Emoji</label>
+          <div class="emoji-wrap">
+            <input id="pEmoji" class="fc" placeholder="" maxlength="2" style="max-width:70px;font-size:1.2rem;text-align:center"/>
+            <div class="emoji-row">
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+              <span class="em-opt" onclick="setEm('')" title=""></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="closeProdModal()">Cancelar</button>
+      <button class="btn btn-pri" onclick="saveProd()"> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ajuste Stock -->
+<div id="mStock" class="modal-bg hidden">
+  <div class="modal sm">
+    <div class="modal-hd">
+      <div class="modal-ht">Ajuste de stock</div>
+      <button class="modal-x" onclick="closeStockModal()"></button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg"><label>Producto</label>
+        <select id="sProd" class="fc" onchange="updateStockCur()"><option value="">Selecciona</option></select>
+      </div>
+      <div class="fg"><label>Stock actual</label>
+        <input id="sCur" class="fc" readonly/>
+      </div>
+      <div class="fg"><label>Tipo</label>
+        <select id="sType" class="fc">
+          <option value="entrada">Entrada (+)</option>
+          <option value="salida">Salida ()</option>
+          <option value="ajuste">Ajuste directo</option>
+        </select>
+      </div>
+      <div class="fg"><label>Cantidad</label>
+        <input id="sQty" class="fc" type="number" placeholder="0" min="0"/>
+      </div>
+      <div class="fg"><label>Motivo</label>
+        <input id="sReason" class="fc" placeholder="Recepcin, correccin"/>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="closeStockModal()">Cancelar</button>
+      <button class="btn btn-pri" onclick="saveStockAdj()"> Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cliente -->
+<div id="mClient" class="modal-bg hidden">
+  <div class="modal sm">
+    <div class="modal-hd">
+      <div class="modal-ht" id="mClientTitle">Nuevo cliente</div>
+      <button class="modal-x" onclick="closeClientModal()"></button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg"><label>Nombre *</label>  <input id="cName"  class="fc" placeholder="Nombre completo"/></div>
+      <div class="fg"><label>Email</label>      <input id="cEmail" class="fc" type="email" placeholder="email@ejemplo.com"/></div>
+      <div class="fg"><label>Telfono</label>   <input id="cPhone" class="fc" placeholder="+34 600 000 000"/></div>
+      <div class="fg"><label>NIF/NIE</label>    <input id="cNif"   class="fc" placeholder="12345678A"/></div>
+      <div class="fg"><label>Direccin</label>  <input id="cAddr"  class="fc" placeholder="Calle, nmero, ciudad"/></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="closeClientModal()">Cancelar</button>
+      <button class="btn btn-pri" onclick="saveClient()"> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Factura -->
+<div id="mInvoice" class="modal-bg hidden">
+  <div class="modal lg">
+    <div class="modal-hd">
+      <div class="modal-ht"> Factura</div>
+      <button class="modal-x" onclick="closeInvoice()"></button>
+    </div>
+    <div class="modal-bd">
+      <div id="invoice-box"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="closeInvoice()">Cerrar</button>
+      <button class="btn btn-sec" onclick="printInvoice()"> Imprimir</button>
+      <button class="btn btn-pri" onclick="dlPDF()"> Descargar PDF</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Cierre de Caja -->
+<div id="mCierre" class="modal-bg hidden">
+  <div class="modal sm">
+    <div class="modal-hd">
+      <div class="modal-ht">Cierre de Caja</div>
+      <button class="modal-x" onclick="document.getElementById('mCierre').classList.add('hidden')">x</button>
+    </div>
+    <div class="modal-bd" id="cierreContent" style="font-size:.82rem;"></div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="document.getElementById('mCierre').classList.add('hidden')">Cerrar</button>
+      <button class="btn btn-pri" onclick="imprimirCierre()">Imprimir</button>
+    </div>
+  </div>
+</div>
+<!-- Modal Registrar Pago -->
+<div id="mPago" class="modal-bg hidden">
+  <div class="modal sm">
+    <div class="modal-hd">
+      <div class="modal-ht">Registrar Pago</div>
+      <button class="modal-x" onclick="document.getElementById('mPago').classList.add('hidden')">x</button>
+    </div>
+    <div class="modal-bd">
+      <div id="pagoInfo" style="background:var(--bg);border-radius:var(--r);padding:.75rem;margin-bottom:.85rem;font-size:.8rem;"></div>
+      <div class="fg"><label>Monto a pagar (EUR)</label>
+        <input id="pagoMonto" class="fc" type="number" placeholder="0.00" step="0.01" min="0" oninput="calcPagoResto()"/>
+      </div>
+      <div class="fg"><label>Metodo de pago</label>
+        <select id="pagoMetodo" class="fc">
+          <option value="efectivo">Efectivo</option>
+          <option value="tarjeta">Tarjeta</option>
+          <option value="bizum">Bizum</option>
+          <option value="transferencia">Transferencia</option>
+        </select>
+      </div>
+      <div class="fg"><label>Nota</label>
+        <input id="pagoNota" class="fc" placeholder="Opcional..."/>
+      </div>
+      <div class="fg"><label>Soporte de pago (opcional)</label>
+        <div id="pagoSoportePreview" onclick="document.getElementById('pagoSoporteInput').click()"
+          style="width:100%;height:90px;background:var(--bg);border:2px dashed var(--border);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);font-size:.78rem;overflow:hidden;transition:border-color .15s;"
+          onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          Pulsa para subir imagen o captura
+        </div>
+        <input type="file" id="pagoSoporteInput" accept="image/*" style="display:none" onchange="onPagoSoporte(this)"/>
+        <button onclick="capturarPagoSoporte()" style="margin-top:.3rem;width:100%;padding:.38rem;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text-2);font-size:.72rem;cursor:pointer;">Usar camara</button>
+      </div>
+      <div id="pagoResto" style="font-size:.8rem;color:var(--text-2);margin-top:.3rem;"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="document.getElementById('mPago').classList.add('hidden')">Cancelar</button>
+      <button class="btn btn-pri" onclick="confirmarPago()">Registrar Pago</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Soporte Manual -->
+<div id="mSoporteManual" class="modal-bg hidden">
+  <div class="modal sm">
+    <div class="modal-hd">
+      <div class="modal-ht">Subir Soporte de Pago</div>
+      <button class="modal-x" onclick="document.getElementById('mSoporteManual').classList.add('hidden')">x</button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg"><label>Tipo</label>
+        <select id="smTipo" class="fc">
+          <option value="transferencia">Transferencia</option>
+          <option value="venta">Venta</option>
+          <option value="pago_deuda">Pago de deuda</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="fg"><label>Empresa</label>
+        <select id="smCo" class="fc">
+          <option value="sol">Sol Latino</option>
+          <option value="lic">San Pedro</option>
+        </select>
+      </div>
+      <div class="fg"><label>Referencia / N Factura</label>
+        <input id="smRef" class="fc" placeholder="SL-2024-0001 o referencia libre"/></div>
+      <div class="fg"><label>Cliente</label>
+        <input id="smClient" class="fc" placeholder="Nombre del cliente"/></div>
+      <div class="fg"><label>Monto (EUR)</label>
+        <input id="smMonto" class="fc" type="number" placeholder="0.00" step="0.01"/></div>
+      <div class="fg"><label>Metodo de pago</label>
+        <select id="smMetodo" class="fc">
+          <option value="transferencia">Transferencia bancaria</option>
+          <option value="bizum">Bizum</option>
+          <option value="tarjeta">Tarjeta</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="fg"><label>Imagen del soporte</label>
+        <div id="smImgPreview" onclick="document.getElementById('smImgInput').click()"
+          style="width:100%;height:120px;background:var(--bg);border:2px dashed var(--border);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);font-size:.78rem;overflow:hidden;">
+          Pulsa para subir imagen
+        </div>
+        <input type="file" id="smImgInput" accept="image/*" style="display:none" onchange="onSmImg(this)"/>
+      </div>
+      <div class="fg"><label>Nota</label>
+        <input id="smNota" class="fc" placeholder="Opcional..."/></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="document.getElementById('mSoporteManual').classList.add('hidden')">Cancelar</button>
+      <button class="btn btn-pri" onclick="guardarSoporteManual()">Guardar Soporte</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ver Soporte -->
+<div id="mVerSoporte" class="modal-bg hidden">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-ht">Soporte de Pago</div>
+      <button class="modal-x" onclick="document.getElementById('mVerSoporte').classList.add('hidden')">x</button>
+    </div>
+    <div class="modal-bd" id="verSoporteContent"></div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="document.getElementById('mVerSoporte').classList.add('hidden')">Cerrar</button>
+      <button class="btn btn-sec" onclick="compartirSoporte()">Compartir</button>
+      <button class="btn btn-pri" onclick="descargarSoportePDF()">Descargar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ver Deuda Detalle -->
+<div id="mDeudaDetalle" class="modal-bg hidden">
+  <div class="modal lg">
+    <div class="modal-hd">
+      <div class="modal-ht">Detalle de Credito</div>
+      <button class="modal-x" onclick="document.getElementById('mDeudaDetalle').classList.add('hidden')">x</button>
+    </div>
+    <div class="modal-bd" id="deudaDetalleContent"></div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="document.getElementById('mDeudaDetalle').classList.add('hidden')">Cerrar</button>
+      <button class="btn btn-sec" onclick="imprimirDeudaDetalle()">Imprimir</button>
+      <button class="btn btn-pri" onclick="abrirPagoModal()">Registrar Pago</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Foto Mercancia -->
+<div id="mFoto" class="modal-bg hidden">
+  <div class="modal sm">
+    <div class="modal-hd">
+      <div class="modal-ht">Foto de Mercancia</div>
+      <button class="modal-x" onclick="document.getElementById('mFoto').classList.add('hidden')">x</button>
+    </div>
+    <div class="modal-bd">
+      <div style="display:flex;flex-direction:column;gap:.75rem;">
+        <div id="fotoPreview" style="width:100%;min-height:160px;background:var(--bg);border-radius:var(--r2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:.8rem;overflow:hidden;">
+          Sin foto
+        </div>
+        <div style="display:flex;gap:.5rem;">
+          <button class="btn btn-sec" style="flex:1" onclick="document.getElementById('fotoFileInput').click()">Subir imagen</button>
+          <button class="btn btn-sec" style="flex:1" onclick="activarCamaraFoto()">Usar camara</button>
+        </div>
+        <input type="file" id="fotoFileInput" accept="image/*" style="display:none" onchange="onFotoFile(this)"/>
+        <video id="fotoVideo" style="display:none;width:100%;border-radius:var(--r2);" autoplay playsinline></video>
+        <button id="fotoCapturarBtn" style="display:none;" class="btn btn-pri" onclick="capturarFoto()">Capturar</button>
+        <canvas id="fotoCanvas" style="display:none;"></canvas>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="cerrarFotoModal()">Cancelar</button>
+      <button class="btn btn-pri" onclick="guardarFoto()">Guardar Foto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Devolucion -->
+<div id="mDevolucion" class="modal-bg hidden">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-ht" id="mDevTitle">Nueva Devolucion</div>
+      <button class="modal-x" onclick="document.getElementById(''mDevolucion'').classList.add(''hidden'')">x</button>
+    </div>
+    <div class="modal-bd">
+      <div class="form2">
+        <div class="fg"><label>Empresa</label>
+          <select id="dCo" class="fc"><option value="sol">Sol Latino</option><option value="lic">San Pedro</option></select>
+        </div>
+        <div class="fg"><label>Tipo</label>
+          <select id="dTipo" class="fc">
+            <option value="devolucion">Devolucion</option>
+            <option value="cambio">Cambio</option>
+            <option value="nota_credito">Nota de credito</option>
+          </select>
+        </div>
+        <div class="fg"><label>N Factura original (opcional)</label>
+          <input id="dFactura" class="fc" placeholder="SL-2024-0001"/>
+        </div>
+        <div class="fg"><label>Cliente</label>
+          <select id="dCliente" class="fc"><option value="">Cliente generico</option></select>
+        </div>
+        <div class="fg s2"><label>Productos devueltos</label>
+          <div id="dItemsWrap" style="display:flex;flex-direction:column;gap:.4rem;">
+            <div class="d-item-row" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:.4rem;align-items:center;">
+              <input class="fc d-name" placeholder="Nombre producto" style="font-size:.78rem;"/>
+              <input class="fc d-qty"  type="number" placeholder="Cant." min="1" value="1" style="font-size:.78rem;"/>
+              <input class="fc d-price" type="number" placeholder="Precio" step="0.01" min="0" style="font-size:.78rem;" oninput="calcDevTotal()"/>
+              <button onclick="removeDevItem(this)" style="background:var(--red-bg);border:1.5px solid rgba(239,68,68,.3);color:var(--red);border-radius:var(--r);padding:.3rem .5rem;cursor:pointer;font-size:.75rem;">x</button>
+            </div>
+          </div>
+          <button onclick="addDevItem()" style="margin-top:.4rem;width:100%;padding:.38rem;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text-2);font-size:.75rem;cursor:pointer;">+ Agregar producto</button>
+        </div>
+        <div class="fg"><label>Metodo devolucion</label>
+          <select id="dMetodo" class="fc">
+            <option value="efectivo">Efectivo</option>
+            <option value="nota_credito">Nota de credito</option>
+            <option value="cambio">Cambio por otro producto</option>
+          </select>
+        </div>
+        <div class="fg"><label>Monto total devolucion</label>
+          <input id="dMontoTotal" class="fc" type="number" step="0.01" placeholder="0.00" readonly style="font-weight:800;color:var(--red);"/>
+        </div>
+        <div class="fg s2"><label>Motivo</label>
+          <input id="dMotivo" class="fc" placeholder="Producto defectuoso, fecha vencida, error en pedido..."/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="document.getElementById(''mDevolucion'').classList.add(''hidden'')">Cancelar</button>
+      <button class="btn btn-pri" onclick="guardarDevolucion()">Registrar Devolucion</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Historial Cliente -->
+<div id="mHistorialCliente" class="modal-bg hidden">
+  <div class="modal lg">
+    <div class="modal-hd">
+      <div class="modal-ht" id="mHistTitle">Historial de compras</div>
+      <button class="modal-x" onclick="document.getElementById(''mHistorialCliente'').classList.add(''hidden'')">x</button>
+    </div>
+    <div class="modal-bd" id="historialContent"></div>
+    <div class="modal-ft">
+      <button class="btn btn-sec" onclick="document.getElementById(''mHistorialCliente'').classList.add(''hidden'')">Cerrar</button>
+      <button class="btn btn-pri" onclick="exportHistorialPDF()">Descargar PDF</button>
+    </div>
+  </div>
+</div>
+<!-- Toasts -->
+<div id="toasts"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

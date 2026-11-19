@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Manual de Usuario - Sistema POS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono&display=swap');
+  :root{--sol:#F97316;--lic:#1D4ED8;--text:#111827;--text2:#6B7280;--bg:#F9FAFB;--white:#fff;--border:#E5E7EB;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;color:var(--text);background:var(--white);font-size:13px;line-height:1.6;}
+
+  /* COVER */
+  .cover{background:linear-gradient(135deg,#1A1830 0%,#2D2B50 100%);color:#fff;padding:60px 48px;min-height:220px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
+  .cover::after{content:'';position:absolute;right:-40px;top:-40px;width:260px;height:260px;border-radius:50%;background:rgba(249,115,22,.12);}
+  .cover-badge{display:inline-flex;gap:8px;margin-bottom:16px;}
+  .cover-badge span{padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;}
+  .cover-badge .s1{background:rgba(249,115,22,.2);color:#FDBA74;}
+  .cover-badge .s2{background:rgba(29,78,216,.2);color:#93C5FD;}
+  .cover h1{font-size:32px;font-weight:800;line-height:1.1;margin-bottom:8px;}
+  .cover h1 span{background:linear-gradient(90deg,#F97316,#FCD34D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .cover p{color:rgba(255,255,255,.55);font-size:13px;}
+
+  /* TOC */
+  .toc{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:28px 0;page-break-inside:avoid;}
+  .toc h3{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);font-weight:700;margin-bottom:12px;}
+  .toc ol{padding-left:18px;display:grid;grid-template-columns:1fr 1fr;gap:3px 24px;}
+  .toc li{font-size:12.5px;color:var(--text2);}
+  .toc li strong{color:var(--text);font-weight:600;}
+
+  /* CONTENT */
+  .content{padding:0 4px;}
+  h2{font-size:17px;font-weight:800;color:var(--text);margin:32px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;}
+  h2 .num{background:linear-gradient(135deg,var(--sol),#FCD34D);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+  h3{font-size:13px;font-weight:700;color:var(--text);margin:18px 0 6px;}
+  p{margin-bottom:8px;color:#374151;}
+  ul,ol{padding-left:18px;margin-bottom:10px;}
+  li{margin-bottom:3px;color:#374151;}
+  strong{font-weight:700;color:var(--text);}
+  code{font-family:'DM Mono',monospace;background:#F3F4F6;border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:11.5px;color:#1D4ED8;}
+
+  /* STEPS */
+  .steps{counter-reset:step;display:flex;flex-direction:column;gap:6px;margin:10px 0;}
+  .step{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);}
+  .step::before{counter-increment:step;content:counter(step);background:var(--sol);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px;}
+  .step p{margin:0;font-size:12.5px;}
+
+  /* TIPS */
+  .tip{display:flex;gap:8px;padding:10px 12px;border-radius:8px;margin:10px 0;font-size:12.5px;}
+  .tip.info{background:#EFF6FF;border-left:3px solid #3B82F6;color:#1E40AF;}
+  .tip.warn{background:#FFFBEB;border-left:3px solid #F59E0B;color:#92400E;}
+  .tip.ok{background:#ECFDF5;border-left:3px solid #10B981;color:#065F46;}
+  .tip.red{background:#FEF2F2;border-left:3px solid #EF4444;color:#991B1B;}
+  .tip-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px;}
+  th{background:var(--bg);padding:7px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border);}
+  td{padding:7px 10px;border-bottom:1px solid var(--border);color:#374151;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--bg);}
+
+  /* BADGE */
+  .badge{display:inline-flex;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;}
+  .badge-sol{background:rgba(249,115,22,.12);color:var(--sol);}
+  .badge-lic{background:rgba(29,78,216,.1);color:var(--lic);}
+  .badge-ok{background:#ECFDF5;color:#059669;}
+  .badge-warn{background:#FFFBEB;color:#D97706;}
+  .badge-red{background:#FEF2F2;color:#DC2626;}
+
+  /* FLOW BOX */
+  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);}
+  .flow-item{padding:4px 10px;background:#fff;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text);}
+  .flow-arrow{color:var(--text2);font-size:14px;font-weight:700;}
+
+  /* FAQ */
+  .faq{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+  .faq-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .faq-q{background:var(--bg);padding:9px 12px;font-weight:700;font-size:12.5px;color:var(--text);}
+  .faq-a{padding:9px 12px;font-size:12.5px;color:#374151;border-top:1px solid var(--border);}
+
+  /* PAGE BREAK */
+  .pb{page-break-before:always;}
+
+  /* PRINT */
+  @media print{
+    body{font-size:11px;}
+    .cover{padding:40px 36px;}
+    h2{font-size:15px;}
+    .no-print{display:none;}
+  }
+  @page{margin:1.2cm 1.4cm;size:A4;}
+
+  /* HEADER repeat on print */
+  .page-header{display:none;}
+  @media print{
+    .page-header{display:block;font-size:9px;color:var(--text2);border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:12px;}
+  }
+
+  /* ACTIONS BAR */
+  .actions{position:sticky;top:0;z-index:100;background:#1A1830;padding:10px 20px;display:flex;gap:10px;align-items:center;justify-content:space-between;}
+  .actions span{color:rgba(255,255,255,.6);font-size:12px;}
+  .btn-print,.btn-dl{padding:7px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s;}
+  .btn-print{background:#374151;color:#fff;}
+  .btn-dl{background:linear-gradient(135deg,#F97316,#FCD34D);color:#fff;}
+  .btn-print:hover,.btn-dl:hover{opacity:.88;}
+</style>
+</head>
+<body>
+
+<div class="actions no-print">
+  <span>Manual de Usuario - Sistema POS</span>
+  <div style="display:flex;gap:8px;">
+    <button class="btn-print" onclick="window.print()">Imprimir</button>
+    <button class="btn-dl" onclick="window.print()">Descargar PDF</button>
+  </div>
+</div>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-badge">
+    <span class="s1">Sol Latino</span>
+    <span class="s2">Licores San Pedro</span>
+  </div>
+  <h1>Manual de Usuario<br><span>Sistema POS</span></h1>
+  <p style="margin-top:10px;">Guia completa de todos los flujos y funciones del sistema</p>
+</div>
+
+<div style="padding:0 24px 40px;">
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Contenido</h3>
+  <ol>
+    <li><strong>Iniciar el sistema</strong></li>
+    <li><strong>Punto de Venta</strong> - cobrar</li>
+    <li><strong>Dashboard</strong> - resumen</li>
+    <li><strong>Productos e Inventario</strong></li>
+    <li><strong>Ventas</strong> - historial y cierre</li>
+    <li><strong>Clientes</strong> - gestion e historial</li>
+    <li><strong>Credito y Deudas</strong> - fiado</li>
+    <li><strong>Devoluciones</strong></li>
+    <li><strong>Soportes de Pago</strong></li>
+    <li><strong>Configuracion</strong></li>
+    <li><strong>Alertas automaticas</strong></li>
+    <li><strong>Preguntas frecuentes</strong></li>
+  </ol>
+</div>
+
+<div class="content">
+
+<!-- INICIAR -->
+<h2><span class="num">0</span>Iniciar el sistema</h2>
+
+<div class="tip info"><span class="tip-icon">i</span><div><strong>Siempre usa iniciar.bat.</strong> Si abres index.html directamente, el navegador bloquea la conexion a la base de datos y el sistema no funciona.</div></div>
+
+<div class="steps">
+  <div class="step"><p>Abre la carpeta del sistema en tu ordenador</p></div>
+  <div class="step"><p>Haz doble clic en <code>iniciar.bat</code></p></div>
+  <div class="step"><p>Se abre una ventana negra (el servidor local) y el navegador automaticamente</p></div>
+  <div class="step"><p>El sistema carga con el splash animado y conecta a Supabase</p></div>
+  <div class="step"><p>Punto <strong style="color:#10B981;">verde</strong> en la barra superior = conectado. Punto <strong style="color:#EF4444;">rojo</strong> = sin internet</p></div>
+</div>
+
+<div class="tip warn"><span class="tip-icon">!</span><div>Para cerrar el sistema: cierra la ventana negra del servidor. Si solo cierras el navegador, el servidor sigue activo.</div></div>
+
+<h3>Cambiar entre empresas</h3>
+<p>En la parte superior del menu lateral izquierdo hay dos botones:</p>
+<table>
+  <tr><th>Empresa</th><th>Productos</th><th>Facturas</th></tr>
+  <tr><td><span class="badge badge-sol">Sol Latino</span></td><td>Alimentacion, bebidas, snacks, comida</td><td>Prefijo SL-</td></tr>
+  <tr><td><span class="badge badge-lic">San Pedro</span></td><td>Licores, cervezas, rumba, snacks</td><td>Prefijo SP-</td></tr>
+</table>
+<p>Cada empresa tiene sus propios productos y ventas. Los datos se sincronizan en la nube en tiempo real.</p>
+
+<!-- POS -->
+<h2 class="pb"><span class="num">1</span>Punto de Venta</h2>
+<p>Pantalla principal para realizar cobros. Se divide en dos paneles: productos a la izquierda y carrito a la derecha.</p>
+
+<h3>Flujo completo de una venta</h3>
+<div class="flow">
+  <span class="flow-item">Seleccionar empresa</span><span class="flow-arrow">→</span>
+  <span class="flow-item">Buscar producto</span><span class="flow-arrow">→</span>
+  <span class="flow-item">Agregar al carrito</span><span class="flow-arrow">→</span>
+  <span class="flow-item">Elegir pago</span><span class="flow-arrow">→</span>
+  <span class="flow-item">COBRAR</span><span class="flow-arrow">→</span>
+  <span class="flow-item">Factura PDF</span>
+</div>
+
+<h3>Buscar productos</h3>
+<table>
+  <tr><th>Metodo</th><th>Como hacerlo</th></tr>
+  <tr><td>Por nombre</td><td>Escribe en la barra de busqueda, el grid se filtra en tiempo real</td></tr>
+  <tr><td>Codigo de barras (lector)</td><td>Conecta el lector USB, escanea y presiona Enter</td></tr>
+  <tr><td>Camara del dispositivo</td><td>Pulsa el icono de camara, apunta al codigo de barras</td></tr>
+  <tr><td>Por categoria</td><td>Chips de filtro: Todos / Bebidas / Snacks / Licores / Comida / Otros</td></tr>
+</table>
+
+<h3>Gestionar el carrito</h3>
+<table>
+  <tr><th>Accion</th><th>Como</th></tr>
+  <tr><td>Agregar producto</td><td>Pulsar la tarjeta del producto</td></tr>
+  <tr><td>Aumentar cantidad</td><td>Boton + en el carrito</td></tr>
+  <tr><td>Reducir cantidad</td><td>Boton - en el carrito</td></tr>
+  <tr><td>Quitar producto</td><td>Boton X a la derecha de la fila</td></tr>
+  <tr><td>Vaciar carrito</td><td>Boton "Vaciar" arriba del carrito</td></tr>
+  <tr><td>Aplicar descuento</td><td>Campo "%" debajo del subtotal</td></tr>
+</table>
+
+<div class="tip ok"><span class="tip-icon">i</span><div>El <strong>IVA 21%</strong> se calcula automaticamente sobre el precio final despues del descuento. No hace falta hacer nada.</div></div>
+
+<h3>Campos opcionales del carrito</h3>
+<ul>
+  <li><strong>Cliente:</strong> desplegable para asociar la venta a un cliente registrado</li>
+  <li><strong>Vendedor:</strong> nombre de quien realiza la venta (queda en la factura)</li>
+  <li><strong>Nota:</strong> cualquier anotacion sobre la venta</li>
+  <li><strong>Foto:</strong> adjunta foto de la mercancia (esencial en ventas a credito)</li>
+</ul>
+
+<h3>Metodos de pago</h3>
+<table>
+  <tr><th>Metodo</th><th>Que hace el sistema</th></tr>
+  <tr><td>Efectivo</td><td>Muestra campo "Recibido" y calcula el cambio automaticamente</td></tr>
+  <tr><td>Tarjeta</td><td>Registra la venta. Puedes adjuntar soporte de pago</td></tr>
+  <tr><td>Bizum</td><td>Registra la venta. Puedes adjuntar soporte de pago</td></tr>
+  <tr><td>Credito</td><td>Registra la venta con deuda pendiente. Va a seccion Credito/Deudas</td></tr>
+</table>
+
+<h3>Factura generada</h3>
+<p>Al pulsar COBRAR se genera la factura automaticamente con numero correlativo unico por empresa. Aparece en pantalla con dos opciones:</p>
+<ul>
+  <li><strong>Imprimir:</strong> abre el dialogo de impresion del navegador</li>
+  <li><strong>Descargar PDF:</strong> guarda la factura en tu ordenador</li>
+</ul>
+
+<!-- DASHBOARD -->
+<h2 class="pb"><span class="num">2</span>Dashboard</h2>
+<p>Resumen visual del negocio en tiempo real. Usa los botones <strong>Ambas / Sol Latino / San Pedro</strong> para filtrar todas las graficas a la vez.</p>
+
+<table>
+  <tr><th>Elemento</th><th>Que muestra</th></tr>
+  <tr><td>Ventas hoy</td><td>Total en euros de ventas del dia actual</td></tr>
+  <tr><td>Ventas del mes</td><td>Acumulado del mes en curso</td></tr>
+  <tr><td>Productos</td><td>Total de productos y cuantos tienen stock bajo</td></tr>
+  <tr><td>Clientes</td><td>Total de clientes registrados</td></tr>
+  <tr><td>Grafica 7 dias</td><td>Barras de ventas por dia de la ultima semana</td></tr>
+  <tr><td>Top productos</td><td>Los mas vendidos en unidades</td></tr>
+  <tr><td>Metodos de pago</td><td>Dona con distribucion efectivo / tarjeta / bizum / credito</td></tr>
+  <tr><td>Por empresa</td><td>Comparativa Sol Latino vs San Pedro</td></tr>
+  <tr><td>Alertas</td><td>Productos sin stock, proximos a vencer, deudas vencidas</td></tr>
+  <tr><td>Ultimas ventas</td><td>Las 8 ventas mas recientes</td></tr>
+</table>
+
+<!-- PRODUCTOS -->
+<h2><span class="num">3</span>Productos e Inventario</h2>
+<p>Una sola seccion con dos pestanas que se seleccionan arriba.</p>
+
+<h3>Pestana: Catalogo</h3>
+<p>CRUD completo de productos. Columnas visibles: codigo, nombre, categoria, empresa, precio, costo, margen %, stock, minimo, fecha vencimiento y estado.</p>
+
+<h3>Crear o editar un producto</h3>
+<div class="steps">
+  <div class="step"><p>Pulsa <strong>"+ Nuevo producto"</strong> o el boton <strong>Editar</strong> en un producto existente</p></div>
+  <div class="step"><p>Selecciona la empresa: <span class="badge badge-sol">Sol Latino</span> o <span class="badge badge-lic">San Pedro</span></p></div>
+  <div class="step"><p><strong>Codigo de barras:</strong> escanea con lector, escribe manualmente, o pulsa el dado para generarlo automatico</p></div>
+  <div class="step"><p>Rellena nombre, categoria, precio de venta y precio de costo (el margen se calcula solo)</p></div>
+  <div class="step"><p>Stock inicial y stock minimo (cuando llega al minimo, dispara alerta roja)</p></div>
+  <div class="step"><p><strong>Fecha de vencimiento:</strong> opcional. Con los dias de alerta previos (ej: 7 dias antes avisa en amarillo)</p></div>
+  <div class="step"><p><strong>Lote:</strong> numero de lote o referencia del proveedor (opcional)</p></div>
+  <div class="step"><p>Emoji: elige un icono para reconocer el producto rapidamente en el POS</p></div>
+  <div class="step"><p>Pulsa <strong>Guardar</strong></p></div>
+</div>
+
+<h3>Pestana: Inventario y Stock</h3>
+<p>Vista enfocada en control de existencias. Muestra 4 tarjetas de resumen en la parte superior:</p>
+<table>
+  <tr><td><span class="badge badge-ok">Verde</span></td><td>Productos con stock optimo (por encima del minimo)</td></tr>
+  <tr><td><span class="badge badge-warn">Amarillo</span></td><td>Productos en o por debajo del stock minimo</td></tr>
+  <tr><td><span class="badge badge-red">Rojo</span></td><td>Productos sin stock</td></tr>
+  <tr><td><span class="badge" style="background:#EFF6FF;color:#1D4ED8;">Azul</span></td><td>Valor total del inventario en euros (stock x precio costo)</td></tr>
+</table>
+
+<h3>Ajustar stock</h3>
+<p>Pulsa <strong>"+ Ajuste de stock"</strong> o el boton Ajustar en cualquier fila.</p>
+<table>
+  <tr><th>Tipo</th><th>Cuando usarlo</th></tr>
+  <tr><td>Entrada (+)</td><td>Llega mercancia del proveedor</td></tr>
+  <tr><td>Salida (-)</td><td>Sacas mercancia sin venta (uso interno, merma, regalo)</td></tr>
+  <tr><td>Ajuste directo</td><td>Corriges al numero exacto que tienes fisicamente al hacer inventario</td></tr>
+</table>
+<div class="tip warn"><span class="tip-icon">!</span><div>Siempre escribe el motivo del ajuste. Ayuda a entender los movimientos de stock en el futuro.</div></div>
+
+<!-- VENTAS -->
+<h2 class="pb"><span class="num">4</span>Ventas</h2>
+<p>Historial completo de todas las ventas realizadas con filtros avanzados.</p>
+
+<h3>Filtros disponibles</h3>
+<ul>
+  <li><strong>Rango de fechas:</strong> desde / hasta</li>
+  <li><strong>Empresa:</strong> Sol Latino / San Pedro / Ambas</li>
+  <li><strong>Metodo de pago:</strong> efectivo / tarjeta / bizum / credito</li>
+</ul>
+
+<h3>Acciones por venta</h3>
+<ul>
+  <li><strong>Ver:</strong> abre la factura original. Puedes reimprimir o descargar PDF</li>
+</ul>
+
+<h3>Exportar CSV</h3>
+<p>Boton en la parte superior. Descarga todas las ventas del filtro actual en formato Excel/CSV compatible con cualquier hoja de calculo.</p>
+
+<h3>Cierre de Caja</h3>
+<div class="steps">
+  <div class="step"><p>Pulsa <strong>"Cierre de Caja"</strong> en la seccion Ventas</p></div>
+  <div class="step"><p>Muestra el resumen del dia: total por metodo de pago y total por empresa</p></div>
+  <div class="step"><p>Pulsa <strong>Imprimir</strong> para cuadrar la caja con el cajero</p></div>
+</div>
+
+<!-- CLIENTES -->
+<h2><span class="num">5</span>Clientes</h2>
+
+<h3>Crear cliente</h3>
+<div class="steps">
+  <div class="step"><p>Pulsa <strong>"+ Nuevo"</strong></p></div>
+  <div class="step"><p>Rellena al menos el nombre (el resto es opcional: email, telefono, NIF, direccion)</p></div>
+  <div class="step"><p>Guardar</p></div>
+</div>
+<p>Desde el POS, selecciona el cliente en el desplegable del carrito para asociar la venta.</p>
+
+<h3>Historial de compras</h3>
+<p>Boton <strong>"Historial"</strong> en la fila de cada cliente. Muestra:</p>
+<ul>
+  <li>Total gastado en euros</li>
+  <li>Numero de compras realizadas</li>
+  <li>Deuda pendiente actual</li>
+  <li>Metodo de pago favorito</li>
+  <li>Lista completa de todas sus compras con fecha, productos y total</li>
+  <li>Creditos y deudas activos con estado</li>
+</ul>
+<p>Boton <strong>"Descargar PDF"</strong> genera un informe completo del cliente para enviar o archivar.</p>
+
+<!-- CREDITO -->
+<h2 class="pb"><span class="num">6</span>Credito y Deudas (Fiado)</h2>
+<p>Gestion completa de ventas a credito. Cuando un cliente se lleva mercancia y paga despues.</p>
+
+<h3>Registrar una venta a credito</h3>
+<div class="steps">
+  <div class="step"><p>En el POS, agrega los productos al carrito normalmente</p></div>
+  <div class="step"><p>Selecciona el cliente en el desplegable (obligatorio para seguimiento)</p></div>
+  <div class="step"><p>Escribe el nombre del vendedor</p></div>
+  <div class="step"><p>Pulsa <strong>"Foto"</strong> y fotografía la mercancia que se lleva el cliente</p></div>
+  <div class="step"><p>Selecciona metodo de pago <strong>"Credito"</strong></p></div>
+  <div class="step"><p>Pulsa <strong>COBRAR</strong></p></div>
+</div>
+
+<p>El sistema registra automaticamente:</p>
+<ul>
+  <li>La venta con pago 0 euros</li>
+  <li>La deuda en la seccion Credito/Deudas</li>
+  <li>La foto de la mercancia vinculada a esa deuda</li>
+</ul>
+
+<div class="tip ok"><span class="tip-icon">i</span><div>La factura generada muestra en rojo <strong>"DEBE: XX.XX EUR"</strong> con la lista de productos y espacio para firma del cliente.</div></div>
+
+<h3>Registrar un pago de deuda</h3>
+<div class="steps">
+  <div class="step"><p>Ve a la seccion <strong>Credito y Deudas</strong></p></div>
+  <div class="step"><p>Encuentra la deuda del cliente (busca por nombre o numero de factura)</p></div>
+  <div class="step"><p>Pulsa <strong>"Cobrar"</strong></p></div>
+  <div class="step"><p>Ingresa el monto (puede ser parcial)</p></div>
+  <div class="step"><p>Selecciona el metodo de pago</p></div>
+  <div class="step"><p>Adjunta imagen del comprobante si paga por transferencia/bizum</p></div>
+  <div class="step"><p>Escribe una nota si es necesario</p></div>
+  <div class="step"><p>Pulsa <strong>"Registrar Pago"</strong></p></div>
+</div>
+
+<h3>Estados de una deuda</h3>
+<table>
+  <tr><td><span class="badge badge-red">Pendiente</span></td><td>No se ha pagado nada</td></tr>
+  <tr><td><span class="badge badge-warn">Parcial</span></td><td>Se ha pagado parte del total</td></tr>
+  <tr><td><span class="badge badge-ok">Pagado</span></td><td>Deuda saldada completamente</td></tr>
+</table>
+
+<!-- DEVOLUCIONES -->
+<h2><span class="num">7</span>Devoluciones</h2>
+<p>Para cuando un cliente devuelve productos. El stock se repone automaticamente.</p>
+
+<h3>Registrar una devolucion</h3>
+<div class="steps">
+  <div class="step"><p>Ve a <strong>Devoluciones</strong> y pulsa <strong>"+ Nueva devolucion"</strong></p></div>
+  <div class="step"><p>Selecciona el tipo: <strong>Devolucion</strong> (dinero de vuelta), <strong>Cambio</strong> (otro producto) o <strong>Nota de credito</strong> (saldo para futuras compras)</p></div>
+  <div class="step"><p>Escribe el numero de factura original (opcional, para vincular)</p></div>
+  <div class="step"><p>Selecciona el cliente</p></div>
+  <div class="step"><p>Agrega los productos devueltos con cantidad y precio</p></div>
+  <div class="step"><p>Selecciona como le devuelves: efectivo, nota de credito, cambio</p></div>
+  <div class="step"><p>Escribe el motivo (producto defectuoso, fecha vencida, error en pedido, etc.)</p></div>
+  <div class="step"><p>Pulsa <strong>"Registrar Devolucion"</strong></p></div>
+</div>
+
+<div class="tip info"><span class="tip-icon">i</span><div>El sistema genera un documento de devolucion imprimible con firma del cliente. Los tipos "Devolucion" y "Cambio" reponen el stock automaticamente.</div></div>
+
+<!-- SOPORTES -->
+<h2 class="pb"><span class="num">8</span>Soportes de Pago</h2>
+<p>Registro de comprobantes de transferencias, Bizum y pagos electronicos.</p>
+
+<h3>Como se crean los soportes</h3>
+<table>
+  <tr><th>Situacion</th><th>Soporte creado</th></tr>
+  <tr><td>Venta con Bizum/Tarjeta + foto adjunta en POS</td><td>Automatico, vinculado a la factura</td></tr>
+  <tr><td>Pago de deuda con imagen de comprobante</td><td>Automatico, vinculado a la deuda</td></tr>
+  <tr><td>Transferencia sin venta previa</td><td>Manual desde "+ Subir soporte"</td></tr>
+</table>
+
+<h3>Subir soporte manualmente</h3>
+<div class="steps">
+  <div class="step"><p>Pulsa <strong>"+ Subir soporte"</strong></p></div>
+  <div class="step"><p>Tipo: Transferencia / Venta / Pago de deuda / Otro</p></div>
+  <div class="step"><p>Referencia: numero de factura o referencia libre</p></div>
+  <div class="step"><p>Cliente, monto y metodo</p></div>
+  <div class="step"><p>Sube la imagen del comprobante (foto o captura de pantalla)</p></div>
+  <div class="step"><p>Guardar</p></div>
+</div>
+
+<h3>Acciones por soporte</h3>
+<table>
+  <tr><td><strong>Ver</strong></td><td>Muestra la imagen del comprobante en grande con todos los datos</td></tr>
+  <tr><td><strong>PDF</strong></td><td>Descarga un PDF con datos del pago e imagen del comprobante</td></tr>
+  <tr><td><strong>Compartir</strong></td><td>Envia por WhatsApp o email (en movil) o descarga la imagen</td></tr>
+  <tr><td><strong>Borrar</strong></td><td>Elimina el soporte del registro</td></tr>
+</table>
+
+<!-- CONFIG -->
+<h2><span class="num">9</span>Configuracion</h2>
+<table>
+  <tr><th>Opcion</th><th>Para que sirve</th></tr>
+  <tr><td>Empresa activa</td><td>Cambia la empresa predeterminada al abrir el sistema</td></tr>
+  <tr><td>Pie de factura Sol Latino</td><td>Texto personalizado al pie de las facturas de Sol Latino</td></tr>
+  <tr><td>Pie de factura San Pedro</td><td>Texto personalizado al pie de las facturas de San Pedro</td></tr>
+  <tr><td>Exportar backup JSON</td><td>Descarga copia completa de todos los datos</td></tr>
+  <tr><td>Cargar demo</td><td>Carga datos de ejemplo para explorar el sistema (solo pruebas)</td></tr>
+  <tr><td>Borrar todo</td><td>Elimina todos los datos. IRREVERSIBLE</td></tr>
+</table>
+
+<!-- ALERTAS -->
+<h2 class="pb"><span class="num">10</span>Alertas Automaticas</h2>
+<p>El panel de alertas del Dashboard detecta tres tipos de problemas en tiempo real:</p>
+
+<table>
+  <tr><th>Nivel</th><th>Tipo</th><th>Cuando se activa</th></tr>
+  <tr><td><span class="badge badge-red">Critico</span></td><td>Sin stock</td><td>Stock llega a 0</td></tr>
+  <tr><td><span class="badge badge-red">Critico</span></td><td>Producto vencido</td><td>Fecha de vencimiento ya paso</td></tr>
+  <tr><td><span class="badge badge-red">Critico</span></td><td>Deuda vencida</td><td>Deuda con mas de 30 dias sin pago</td></tr>
+  <tr><td><span class="badge badge-warn">Aviso</span></td><td>Stock bajo</td><td>Stock igual o menor al minimo configurado</td></tr>
+  <tr><td><span class="badge badge-warn">Aviso</span></td><td>Producto por vencer</td><td>Dentro de los dias de alerta configurados</td></tr>
+  <tr><td><span class="badge badge-warn">Aviso</span></td><td>Deuda proxima a vencer</td><td>Deuda supera el 80% del tiempo limite</td></tr>
+</table>
+
+<!-- FAQ -->
+<h2><span class="num">11</span>Preguntas Frecuentes</h2>
+
+<div class="faq">
+  <div class="faq-item">
+    <div class="faq-q">El sistema no conecta o aparece punto rojo</div>
+    <div class="faq-a">Revisar conexion a internet. Supabase requiere internet para funcionar. Tambien verificar que se abrio con iniciar.bat y no con index.html directamente.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">El codigo de barras no encuentra el producto</div>
+    <div class="faq-a">El codigo no esta registrado. Ve a Productos, busca el producto por nombre y verifica o corrige su codigo de barras.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Un producto aparece pero dice "Sin stock"</div>
+    <div class="faq-a">Ve a la pestana Inventario, busca el producto y haz un ajuste de stock tipo "Entrada" con la cantidad recibida.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Quiero cambiar el precio de un producto</div>
+    <div class="faq-a">Ve a Productos, boton Editar en el producto y cambia el precio. Las ventas anteriores mantienen el precio original en sus facturas.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">El cliente pago solo una parte de su deuda</div>
+    <div class="faq-a">Ve a Credito y Deudas, boton Cobrar en la deuda, ingresa el monto parcial. El saldo restante queda pendiente con estado "Parcial".</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Cometi un error en una venta</div>
+    <div class="faq-a">Registra una devolucion del mismo importe desde la seccion Devoluciones, tipo "Nota de credito".</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Como saber cuanto efectivo entre hoy</div>
+    <div class="faq-a">Ve a Ventas y pulsa "Cierre de Caja". Muestra el desglose exacto por metodo de pago y por empresa del dia actual.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Quiero usar el sistema desde el movil o una tablet</div>
+    <div class="faq-a">Con el ordenador encendido y el servidor activo, abre el navegador en el movil y escribe: http://[IP-del-ordenador]:3000. Ambos deben estar conectados a la misma red WiFi.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Donde se guardan los datos</div>
+    <div class="faq-a">En Supabase, una base de datos en la nube. Los datos persisten aunque reinicies el ordenador. Para copia de seguridad adicional usa Configuracion > Exportar backup JSON.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">La factura no tiene logo de la empresa</div>
+    <div class="faq-a">Los archivos LOGO EL SOL LATINO.PNG y LOGO LICORES SAN PEDRO PNG.png deben estar en la misma carpeta que el sistema. Verificar que no se hayan movido.</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="margin-top:40px;padding:20px 24px;background:linear-gradient(135deg,#1A1830,#2D2B50);border-radius:12px;color:rgba(255,255,255,.6);font-size:11px;text-align:center;">
+  <div style="font-weight:700;color:#fff;font-size:13px;margin-bottom:4px;">Sistema POS - Sol Latino & Licores San Pedro</div>
+  <div>Dos empresas, una sola herramienta</div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /padding -->
+
+<script>
+// Auto-trigger print for PDF save via browser
+// User can also just use Ctrl+P
+</script>
+</body>
+</html>
