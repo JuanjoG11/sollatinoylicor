@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A1830"/>
+      <stop offset="100%" style="stop-color:#2D2B50"/>
+    </linearGradient>
+  </defs>
+  <rect width="144" height="144" rx="21.599999999999998" fill="url(#bg)"/>
+  <circle cx="103.67999999999999" cy="40.32000000000001" r="31.68" fill="rgba(249,115,22,0.15)"/>
+  <text x="72" y="57.6" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="31.68" fill="#F97316">POS</text>
+  <text x="72" y="89.28" text-anchor="middle" font-family="Arial,sans-serif" font-size="14.4" fill="rgba(255,255,255,0.55)">Sol &amp; San Pedro</text>
+  <text x="72" y="119.52" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="28.8" fill="#FCD34D">?</text>
+</svg>

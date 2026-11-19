@@ -927,6 +927,9 @@ async function loadDemo(){
 async function init(){
   tickClock(); setInterval(tickClock,1000);
   document.getElementById('cashBlock').style.display='flex';
+  // Handle PWA shortcuts (?section=xxx)
+  var urlParams = new URLSearchParams(window.location.search);
+  var startSection = urlParams.get('section') || 'pos';
   var today=new Date().toISOString().slice(0,10);
   var ago30=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
   if(document.getElementById('vFrom'))document.getElementById('vFrom').value=ago30;
@@ -946,7 +949,7 @@ async function init(){
       setTimeout(function(){
         splash.classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
-        renderProdGrid(); calcTotals(); renderClientsTable(); renderDash(); go('pos');
+        renderProdGrid(); calcTotals(); renderClientsTable(); renderDash(); go(startSection);
       },500);
     },600);
   },1800);
@@ -2178,6 +2181,31 @@ window.capturarPagoSoporte=capturarPagoSoporte;
 
 
 document.addEventListener('DOMContentLoaded', init);
+
+//    SERVICE WORKER                                 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(reg) {
+        console.log('[PWA] Service Worker registrado:', reg.scope);
+        // Check for updates
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          newWorker.addEventListener('statechange', function() {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              toast('Nueva version disponible. Recarga la pagina para actualizar.', 'inf');
+            }
+          });
+        });
+      })
+      .catch(function(err) {
+        console.warn('[PWA] Service Worker error:', err);
+      });
+  });
+}
+
+
+
 
 
 
