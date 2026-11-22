@@ -16,8 +16,11 @@ create table if not exists productos (
   min         integer not null default 5,
   emoji       text default '📦',
   description text,
-  last_sale       timestamptz,
-  last_movement   timestamptz,
+  last_sale           timestamptz,
+  last_movement       timestamptz,
+  fecha_vencimiento   timestamptz,
+  dias_alerta_venc    integer default 7,
+  lote                text,
   created_at  timestamptz default now(),
   updated_at  timestamptz default now()
 );

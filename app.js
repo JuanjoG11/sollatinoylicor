@@ -637,8 +637,9 @@ async function saveProd() {
   if (!name) { toast('Nombre obligatorio','err'); return; }
   if (!bc)   { toast('Codigo obligatorio','err'); return; }
   if (isNaN(price)||price<0) { toast('Precio no valido','err'); return; }
-  var dup = DB.prods().find(p => p.bc===bc && p.id!==S.editProd);
-  if (dup) { toast('Codigo duplicado','err'); return; }
+  var pCo = document.getElementById('pCo').value;
+  var dup = DB.prods().find(p => p.bc===bc && p.co===pCo && p.id!==S.editProd);
+  if (dup) { console.warn('Duplicado encontrado:', JSON.stringify(dup)); toast('Codigo duplicado: "'+dup.name+'" ya usa ese codigo','err'); return; }
   var btn = document.querySelector('#mProd .btn-pri');
   btn.disabled=true; btn.textContent='Guardando...';
   var data = { id:S.editProd||uid(), co:document.getElementById('pCo').value, bc, name,
