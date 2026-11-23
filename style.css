@@ -395,11 +395,206 @@ textarea.fc{resize:vertical}
 .pt{position:absolute;border-radius:50%;animation:ptFly .9s ease forwards}
 @keyframes ptFly{to{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
 
-/* RESPONSIVE */
-@media(max-width:1100px){.dash-grid{grid-template-columns:1fr 1fr}.kpi{grid-column:span 1}.span2{grid-column:span 2}}
-@media(max-width:900px){#sec-pos.on{grid-template-columns:1fr;height:auto;overflow:visible}.pos-right{order:-1;max-height:410px;border-right:none;border-bottom:1px solid var(--border)}.pos-left{height:58vh}}
-@media(max-width:768px){#app{grid-template-columns:1fr}#sidebar{position:fixed;left:-100%;top:0;height:100vh;width:220px;z-index:500;transition:left .28s ease}#sidebar.open{left:0}.topbar,.main{grid-column:1}.dash-grid{grid-template-columns:1fr 1fr}.stock-sum{grid-template-columns:1fr 1fr}.cfg-grid{grid-template-columns:1fr}.form2{grid-template-columns:1fr}.fg.s2{grid-column:1}}
-@media(max-width:480px){.dash-grid{grid-template-columns:1fr}.span2{grid-column:1}.prod-grid{grid-template-columns:repeat(2,1fr)}}
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+/* — 1100px: dashboard 2 columnas — */
+@media(max-width:1100px){
+  .dash-grid{grid-template-columns:1fr 1fr}
+  .kpi{grid-column:span 1}
+  .span2{grid-column:span 2}
+}
+
+/* — 900px: POS apilado — */
+@media(max-width:900px){
+  #sec-pos.on{
+    grid-template-columns:1fr;
+    height:auto;
+    overflow:visible;
+  }
+  .pos-right{
+    order:-1;
+    max-height:420px;
+    border-right:none;
+    border-bottom:1px solid var(--border);
+  }
+  .pos-left{height:60vh}
+}
+
+/* — 768px: sidebar como drawer, layout 1 columna — */
+@media(max-width:768px){
+  #app{
+    grid-template-columns:1fr;
+    grid-template-rows:var(--th) 1fr;
+  }
+  #sidebar{
+    position:fixed;
+    left:-100%;
+    top:0;
+    height:100vh;
+    width:240px;
+    z-index:500;
+    transition:left .28s ease;
+    box-shadow:4px 0 24px rgba(0,0,0,.18);
+  }
+  #sidebar.open{left:0}
+  .topbar,.main{grid-column:1}
+
+  /* dashboard */
+  .dash-grid{grid-template-columns:1fr 1fr}
+  .span2{grid-column:span 2}
+
+  /* stock resumen */
+  .stock-sum{grid-template-columns:1fr 1fr}
+
+  /* config & formularios */
+  .cfg-grid{grid-template-columns:1fr}
+  .form2{grid-template-columns:1fr}
+  .fg.s2{grid-column:1}
+
+  /* sección wrap más estrecho en móvil */
+  .sec-wrap{padding:1rem .85rem}
+  .sec-hd{flex-wrap:wrap;gap:.5rem}
+
+  /* tablas: scroll horizontal */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px}
+
+  /* modal ocupa toda la pantalla en móvil */
+  .modal-bg{padding:.5rem;align-items:flex-end}
+  .modal{
+    max-width:100%;
+    max-height:92vh;
+    border-radius:var(--r3) var(--r3) 0 0;
+    animation:modalSlideUp .28s cubic-bezier(.34,1.2,.64,1);
+  }
+  .modal.sm,.modal.lg{max-width:100%}
+  @keyframes modalSlideUp{
+    from{opacity:0;transform:translateY(60px)}
+    to{opacity:1;transform:none}
+  }
+
+  /* toasts abajo centrados */
+  #toasts{
+    right:.6rem;
+    left:.6rem;
+    bottom:.7rem;
+    align-items:stretch;
+  }
+  .toast{max-width:100%}
+}
+
+/* — 600px: POS móvil optimizado — */
+@media(max-width:600px){
+  /* POS: carrito primero, pantalla completa */
+  #sec-pos.on{
+    display:flex;
+    flex-direction:column;
+    height:auto;
+    min-height:calc(100vh - var(--th));
+  }
+  .pos-right{
+    order:-1;
+    max-height:none;
+    height:auto;
+    border-bottom:2px solid var(--border);
+    flex-shrink:0;
+  }
+  .pos-left{
+    flex:1;
+    height:auto;
+    min-height:50vh;
+  }
+
+  /* carrito compacto */
+  .cart-hd{padding:.65rem .85rem .55rem}
+  .cart-body{padding:.5rem .65rem;gap:.28rem}
+  .cart-ft{padding:.55rem .85rem .75rem;gap:.35rem}
+
+  /* ítem carrito más compacto */
+  .ci{
+    grid-template-columns:auto 1fr auto auto auto;
+    gap:.28rem;
+    padding:.4rem .5rem;
+  }
+  .ci-em{font-size:1.1rem}
+  .ci-nm{font-size:.68rem}
+  .ci-pr{font-size:.6rem}
+  .ci-tot{font-size:.75rem;min-width:36px}
+
+  /* botón cobrar más grande en móvil */
+  .btn-pay{
+    padding:.9rem;
+    font-size:1rem;
+    letter-spacing:2px;
+  }
+
+  /* grilla de productos 2 columnas compactas */
+  .prod-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:.5rem;
+    padding:.65rem .75rem;
+  }
+  .p-card{padding:.7rem .5rem .6rem}
+  .pc-em{font-size:1.6rem}
+  .pc-nm{font-size:.65rem}
+  .pc-pr{font-size:.82rem}
+
+  /* búsqueda + categorías */
+  .pos-top{padding:.6rem .75rem .55rem;gap:.45rem}
+  .bc-input{font-size:.8rem;padding:.5rem .75rem}
+  .cat-chip{font-size:.65rem;padding:.2rem .55rem}
+
+  /* métodos de pago 2x2 */
+  .pay-grid{grid-template-columns:1fr 1fr;gap:.22rem}
+  .pay-btn{padding:.4rem .3rem;font-size:.68rem}
+
+  /* totales */
+  .sum-row{font-size:.72rem}
+  .sum-row.big{font-size:.95rem}
+
+  /* dashboard 1 col */
+  .dash-grid{grid-template-columns:1fr}
+  .span2{grid-column:1}
+  .kpi{padding:.75rem .8rem;gap:.65rem}
+  .kpi-val{font-size:1.2rem}
+
+  /* stock 2 col */
+  .stock-sum{grid-template-columns:1fr 1fr;gap:.5rem}
+  .ss-card{padding:.65rem .7rem;gap:.5rem}
+  .ss-val{font-size:1rem}
+
+  /* sec-wrap ajustado */
+  .sec-wrap{padding:.75rem .7rem}
+  .sec-ht{font-size:1rem}
+
+  /* filtros apilados */
+  .filters{flex-direction:column;gap:.4rem}
+  .f-input,.f-select{min-width:0;width:100%}
+
+  /* tabla apartados: scroll */
+  .tbl-wrap{overflow-x:auto}
+  table{min-width:560px}
+
+  /* formularios */
+  .modal-bd{padding:.85rem 1rem}
+  .modal-hd{padding:.75rem 1rem}
+  .modal-ft{padding:.65rem 1rem}
+}
+
+/* — 400px: pantallas muy pequeñas — */
+@media(max-width:400px){
+  .prod-grid{grid-template-columns:repeat(2,1fr);gap:.38rem;padding:.5rem}
+  .p-card{padding:.6rem .4rem .5rem}
+  .pc-em{font-size:1.4rem}
+  .pc-nm{font-size:.62rem}
+  .pc-pr{font-size:.78rem}
+  .btn-pay{font-size:.92rem;padding:.82rem}
+  .kpi-val{font-size:1.05rem}
+  .tb-time{display:none}
+  .cb-name{display:none}
+}
 *{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
