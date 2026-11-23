@@ -43,7 +43,7 @@ const S = {
   charts: {},
   dashCo: 'all',
   cfg: { footSol: 'Gracias por tu visita! - El Sol Latino', footLic: 'Vuelve pronto! - Licores San Pedro' },
-  _prods: [], _ventas: [], _clients: [], _traces: []
+  _prods: [], _ventas: [], _clients: [], _traces: [], _apartados: []
 };
 
 const DB = {
@@ -54,18 +54,20 @@ const DB = {
   cfg:     () => S.cfg,
   async loadAll() {
     try {
-      const [prods, ventas, clients, traces, cfgRows, soportesRows] = await Promise.all([
+      const [prods, ventas, clients, traces, cfgRows, soportesRows, apartadosRows] = await Promise.all([
         supa.selectRaw('productos', 'select=*&order=created_at.desc'),
         supa.selectRaw('ventas',    'select=*&order=ts.desc'),
         supa.selectRaw('clientes',  'select=*&order=created_at.desc'),
         supa.selectRaw('trazas',    'select=*&order=ts.desc&limit=100'),
         supa.selectRaw('config',    'select=*'),
         supa.selectRaw('soportes',  'select=*&order=ts.desc&limit=300'),
+        supa.selectRaw('apartados', 'select=*&order=ts_creacion.desc').catch(() => []),
       ]);
       S._prods   = (prods   || []).map(fromDBProd);
       S._ventas  = (ventas  || []).map(fromDBVenta);
       S._clients = (clients || []).map(fromDBClient);
       S._traces = [];
+      S._apartados = (apartadosRows || []).map(fromDBApd);
       (cfgRows || []).forEach(r => { if (r.key in S.cfg) S.cfg[r.key] = r.value; });
       return true;
     } catch(e) {
@@ -164,7 +166,8 @@ function tickClock() {
 
 const TITLES = {
   pos:'Punto de Venta', dashboard:'Dashboard', productos:'Productos e Inventario',
-  ventas:'Ventas', clientes:'Clientes', credito:'Credito y Deudas', devoluciones:'Devoluciones', soportes:'Soportes de Pago', config:'Configuracion'
+  ventas:'Ventas', clientes:'Clientes', credito:'Credito y Deudas', devoluciones:'Devoluciones',
+  soportes:'Soportes de Pago', config:'Configuracion', apartados:'Apartados / Pedidos'
 };
 
 function go(name) {
@@ -183,6 +186,7 @@ function go(name) {
   if (name==='credito')     renderDeudas();
   if (name==='soportes')    renderSoportes();
   if (name==='devoluciones') renderDevoluciones();
+  if (name==='apartados')    renderApartados();
   if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
 }
 
@@ -2245,6 +2249,387 @@ window.openSoporteManual=openSoporteManual;window.onSmImg=onSmImg;
 window.guardarSoporteManual=guardarSoporteManual;window.onPagoSoporte=onPagoSoporte;
 window.capturarPagoSoporte=capturarPagoSoporte;
 
+
+// =====================================================
+//  APARTADOS / PEDIDOS
+// =====================================================
+
+S._apartados = [];
+
+function toDBApd(a) {
+  return {
+    id: a.id, co: a.co, num: a.num,
+    client_id: a.clientId || null,
+    client_name: a.clientName || 'Genérico',
+    items: a.items,
+    sub: a.sub, disc: a.disc, dp: a.dp, tax: a.tax, tot: a.tot,
+    anticipo: a.anticipo, resta: a.resta,
+    estado: a.estado,
+    fecha_entrega: a.fechaEntrega || null,
+    nota: a.nota || null,
+    ts_creacion: a.tsCreacion,
+    ts_entrega: a.tsEntrega || null
+  };
+}
+function fromDBApd(r) {
+  return {
+    id: r.id, co: r.co, num: r.num,
+    clientId: r.client_id, clientName: r.client_name,
+    items: r.items || [],
+    sub: parseFloat(r.sub || 0), disc: parseFloat(r.disc || 0),
+    dp: parseFloat(r.dp || 0), tax: parseFloat(r.tax || 0), tot: parseFloat(r.tot || 0),
+    anticipo: parseFloat(r.anticipo || 0), resta: parseFloat(r.resta || 0),
+    estado: r.estado || 'pendiente',
+    fechaEntrega: r.fecha_entrega || null,
+    nota: r.nota || null,
+    tsCreacion: r.ts_creacion, tsEntrega: r.ts_entrega || null
+  };
+}
+
+function makeAptNum() {
+  var co = document.getElementById('aptCo2').value;
+  var pf = co === 'sol' ? 'APT-SL' : 'APT-SP';
+  var yr = new Date().getFullYear();
+  var n  = (S._apartados || []).filter(a => a.co === co).length + 1;
+  return pf + '-' + yr + '-' + String(n).padStart(4, '0');
+}
+
+// ---- items del formulario ----
+var _aptItems = [];
+
+function renderAptItemsForm() {
+  var wrap = document.getElementById('aptItemsWrap');
+  if (!_aptItems.length) {
+    wrap.innerHTML = '<div style="color:var(--text-3);font-size:.78rem;padding:.4rem 0;">Sin productos agregados</div>';
+    return;
+  }
+  wrap.innerHTML = _aptItems.map(function(it, idx) {
+    return '<div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:.4rem;align-items:center;">'
+      + '<span style="font-size:.8rem;font-weight:500;">' + (it.emoji || '') + ' ' + it.name + '</span>'
+      + '<input class="fc" type="number" min="1" value="' + it.qty + '" style="font-size:.78rem;" oninput="aptChQty(' + idx + ',this.value)"/>'
+      + '<span style="font-size:.8rem;font-weight:600;">' + eur(it.price * it.qty) + '</span>'
+      + '<button onclick="aptRmItem(' + idx + ')" style="background:var(--red-bg);border:1.5px solid rgba(239,68,68,.3);color:var(--red);border-radius:var(--r);padding:.3rem .5rem;cursor:pointer;font-size:.75rem;">x</button>'
+      + '</div>';
+  }).join('');
+  calcAptTotals();
+}
+
+function aptChQty(idx, val) {
+  var q = parseInt(val) || 1;
+  if (q < 1) q = 1;
+  _aptItems[idx].qty = q;
+  calcAptTotals();
+  renderAptItemsForm();
+}
+function aptRmItem(idx) {
+  _aptItems.splice(idx, 1);
+  renderAptItemsForm();
+}
+
+function onAptProdSearch(val) {
+  var res = document.getElementById('aptProdResults');
+  var co  = document.getElementById('aptCo2').value;
+  if (!val || val.length < 1) { res.style.display = 'none'; return; }
+  var prods = DB.prods().filter(function(p) {
+    return p.co === co && (p.name.toLowerCase().includes(val.toLowerCase()) || p.bc.includes(val));
+  }).slice(0, 8);
+  if (!prods.length) { res.style.display = 'none'; return; }
+  res.style.display = 'block';
+  res.innerHTML = prods.map(function(p) {
+    return '<div onclick="aptAddProd(\'' + p.id + '\')" style="padding:.42rem .7rem;cursor:pointer;border-bottom:1px solid var(--border);font-size:.8rem;display:flex;justify-content:space-between;gap:.5rem;" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'"> '
+      + '<span>' + (p.emoji || '') + ' ' + p.name + '</span>'
+      + '<span style="color:var(--accent);font-weight:700;">' + eur(p.price) + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+function aptAddProd(id) {
+  var p = DB.prods().find(function(x) { return x.id === id; });
+  if (!p) return;
+  var ex = _aptItems.find(function(i) { return i.id === id; });
+  if (ex) { ex.qty++; }
+  else { _aptItems.push({ id: p.id, name: p.name, price: p.price, emoji: p.emoji || '', qty: 1 }); }
+  document.getElementById('aptProdSearch').value = '';
+  document.getElementById('aptProdResults').style.display = 'none';
+  renderAptItemsForm();
+}
+
+function calcAptTotals() {
+  var sub  = _aptItems.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+  var dp   = parseFloat(document.getElementById('aptDesc').value) || 0;
+  var disc = sub * dp / 100;
+  var net  = sub - disc;
+  var tax  = net * 0.21;
+  var tot  = net + tax;
+  var ant  = parseFloat(document.getElementById('aptAnticipo').value) || 0;
+  var resta = Math.max(0, tot - ant);
+  document.getElementById('aptSumSub').textContent   = eur(sub);
+  document.getElementById('aptSumDisc').textContent  = '-' + eur(disc);
+  document.getElementById('aptSumTax').textContent   = eur(tax);
+  document.getElementById('aptSumTot').textContent   = eur(tot);
+  document.getElementById('aptSumResta').textContent = eur(resta);
+}
+
+function openApartadoModal(aId) {
+  _aptItems = [];
+  _editAptId = aId || null;
+  var modal = document.getElementById('mApartado');
+  var title = document.getElementById('mAptTitle');
+
+  // Rellenar clientes
+  var sel = document.getElementById('aptCliente');
+  sel.innerHTML = '<option value="">Cliente genérico</option>'
+    + DB.clients().map(function(c) { return '<option value="' + c.id + '">' + c.name + '</option>'; }).join('');
+
+  if (aId) {
+    var a = (S._apartados || []).find(function(x) { return x.id === aId; });
+    if (!a) return;
+    title.textContent = 'Editar Apartado ' + a.num;
+    document.getElementById('aptCo2').value = a.co;
+    sel.value = a.clientId || '';
+    document.getElementById('aptFechaEntrega').value = a.fechaEntrega ? a.fechaEntrega.split('T')[0] : '';
+    document.getElementById('aptNota').value = a.nota || '';
+    document.getElementById('aptDesc').value = a.dp || 0;
+    document.getElementById('aptAnticipo').value = a.anticipo || 0;
+    _aptItems = a.items.map(function(i) { return Object.assign({}, i); });
+  } else {
+    title.textContent = 'Nuevo Apartado';
+    document.getElementById('aptCo2').value = S.co;
+    sel.value = '';
+    document.getElementById('aptFechaEntrega').value = '';
+    document.getElementById('aptNota').value = '';
+    document.getElementById('aptDesc').value = 0;
+    document.getElementById('aptAnticipo').value = 0;
+  }
+  renderAptItemsForm();
+  calcAptTotals();
+  modal.classList.remove('hidden');
+}
+var _editAptId = null;
+
+async function guardarApartado() {
+  if (!_aptItems.length) { toast('Agrega al menos un producto', 'wrn'); return; }
+  var co  = document.getElementById('aptCo2').value;
+  var cId = document.getElementById('aptCliente').value;
+  var cNm = cId ? (DB.clients().find(function(c) { return c.id === cId; })?.name || 'Genérico') : 'Genérico';
+  var dp  = parseFloat(document.getElementById('aptDesc').value) || 0;
+  var ant = parseFloat(document.getElementById('aptAnticipo').value) || 0;
+  var sub = _aptItems.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+  var disc = sub * dp / 100;
+  var net  = sub - disc;
+  var tax  = net * 0.21;
+  var tot  = net + tax;
+  var resta = Math.max(0, tot - ant);
+  var fe  = document.getElementById('aptFechaEntrega').value || null;
+  var nota = document.getElementById('aptNota').value.trim() || null;
+
+  var a = {
+    id: _editAptId || uid(),
+    co, num: _editAptId ? ((S._apartados || []).find(function(x) { return x.id === _editAptId; })?.num || makeAptNum()) : makeAptNum(),
+    clientId: cId, clientName: cNm,
+    items: _aptItems.map(function(i) { return Object.assign({}, i); }),
+    sub, disc, dp, tax, tot, anticipo: ant, resta,
+    estado: _editAptId ? ((S._apartados || []).find(function(x) { return x.id === _editAptId; })?.estado || 'pendiente') : 'pendiente',
+    fechaEntrega: fe, nota,
+    tsCreacion: _editAptId ? ((S._apartados || []).find(function(x) { return x.id === _editAptId; })?.tsCreacion || new Date().toISOString()) : new Date().toISOString(),
+    tsEntrega: null
+  };
+
+  try {
+    var idx = (S._apartados || []).findIndex(function(x) { return x.id === a.id; });
+    if (idx !== -1) {
+      S._apartados[idx] = a;
+      await supa.upsert('apartados', toDBApd(a));
+    } else {
+      S._apartados.unshift(a);
+      await supa.insert('apartados', toDBApd(a));
+    }
+    document.getElementById('mApartado').classList.add('hidden');
+    renderApartados();
+    toast('Apartado ' + a.num + ' guardado', 'ok');
+    await trace('apartado', co, 'Apartado ' + a.num + ' - ' + cNm, _aptItems.length + ' productos - ' + eur(tot));
+  } catch(e) { toast('Error al guardar: ' + e.message, 'err'); console.error(e); }
+}
+
+// ---- Cobrar apartado ----
+var _cobrarAptId = null;
+
+function abrirCobrarApt(id) {
+  var a = (S._apartados || []).find(function(x) { return x.id === id; });
+  if (!a) return;
+  _cobrarAptId = id;
+  var html = '<div style="display:flex;flex-direction:column;gap:.75rem;">'
+    + '<div style="background:var(--bg);border-radius:var(--r);padding:.75rem;">'
+    + '<div style="font-size:.7rem;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:.3rem;">Resumen</div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:.82rem;"><span>Apartado</span><strong>' + a.num + '</strong></div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:.82rem;"><span>Cliente</span><strong>' + a.clientName + '</strong></div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:.82rem;"><span>Total apartado</span><strong>' + eur(a.tot) + '</strong></div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:.82rem;"><span>Anticipo pagado</span><strong style="color:var(--green);">' + eur(a.anticipo) + '</strong></div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:800;color:var(--accent);border-top:1.5px solid var(--border);padding-top:.35rem;margin-top:.25rem;"><span>Resta por cobrar</span><span>' + eur(a.resta) + '</span></div>'
+    + '</div>'
+    + '<div><label style="font-size:.78rem;font-weight:600;color:var(--text-2);display:block;margin-bottom:.3rem;">Método de pago</label>'
+    + '<select id="cobAptPay" class="fc">'
+    + '<option value="efectivo">Efectivo</option>'
+    + '<option value="datafono">Datáfono</option>'
+    + '<option value="wero">Wero</option>'
+    + '<option value="rib">RIB Empresa</option>'
+    + '</select></div>'
+    + '<div id="cobAptEfectivoBlock">'
+    + '<label style="font-size:.78rem;font-weight:600;color:var(--text-2);display:block;margin-bottom:.3rem;">Efectivo recibido</label>'
+    + '<input id="cobAptEfectivo" class="fc" type="number" placeholder="0.00" step="0.01" min="0" value="' + a.resta.toFixed(2) + '" oninput="cobAptCalcCambio()"/>'
+    + '<div style="display:flex;justify-content:space-between;font-size:.85rem;font-weight:700;color:var(--green);margin-top:.35rem;"><span>Cambio</span><span id="cobAptCambio">€0.00</span></div>'
+    + '</div></div>';
+  document.getElementById('cobrarAptContent').innerHTML = html;
+  document.getElementById('cobAptPay').addEventListener('change', function() {
+    document.getElementById('cobAptEfectivoBlock').style.display = this.value === 'efectivo' ? 'block' : 'none';
+  });
+  cobAptCalcCambio();
+  document.getElementById('mCobrarApt').classList.remove('hidden');
+}
+
+function cobAptCalcCambio() {
+  var a = (S._apartados || []).find(function(x) { return x.id === _cobrarAptId; });
+  if (!a) return;
+  var rec = parseFloat(document.getElementById('cobAptEfectivo')?.value) || 0;
+  var cambio = rec - a.resta;
+  var el = document.getElementById('cobAptCambio');
+  if (el) { el.textContent = eur(Math.max(0, cambio)); el.style.color = cambio >= 0 ? 'var(--green)' : 'var(--red)'; }
+}
+
+async function confirmarCobrarApt() {
+  var a = (S._apartados || []).find(function(x) { return x.id === _cobrarAptId; });
+  if (!a) return;
+  var pay = document.getElementById('cobAptPay').value;
+  if (pay === 'efectivo') {
+    var rec = parseFloat(document.getElementById('cobAptEfectivo').value) || 0;
+    if (rec < a.resta - 0.001) { toast('Efectivo insuficiente', 'err'); return; }
+  }
+
+  // Marcar como entregado
+  a.estado     = 'entregado';
+  a.tsEntrega  = new Date().toISOString();
+  a.anticipo   = a.tot; // ya se pagó todo
+  a.resta      = 0;
+
+  try {
+    var idx = S._apartados.findIndex(function(x) { return x.id === a.id; });
+    if (idx !== -1) S._apartados[idx] = a;
+    await supa.upsert('apartados', toDBApd(a));
+
+    // Descontar stock
+    var prods = DB.prods();
+    for (var it of a.items) {
+      var p = prods.find(function(x) { return x.id === it.id; });
+      if (p) {
+        p.stock = Math.max(0, p.stock - it.qty);
+        p.lastSale = new Date().toISOString();
+        await supa.update('productos', p.id, { stock: p.stock, last_sale: p.lastSale });
+      }
+    }
+
+    // Registrar como venta
+    var invNum = makeInvNum ? makeInvNum() : ('APT-' + a.num);
+    var v = {
+      id: uid(), invNum, co: a.co,
+      clientId: a.clientId, clientName: a.clientName,
+      items: a.items.map(function(i) { return Object.assign({}, i); }),
+      sub: a.sub, disc: a.disc, dp: a.dp, tax: a.tax, tot: a.tot,
+      pay: pay, vendedor: '', nota: 'Apartado ' + a.num,
+      cashRec: pay === 'efectivo' ? (parseFloat(document.getElementById('cobAptEfectivo').value) || a.tot) : null,
+      ts: new Date().toISOString()
+    };
+    await save.venta(v);
+
+    document.getElementById('mCobrarApt').classList.add('hidden');
+    renderApartados();
+    burst();
+    toast('Apartado ' + a.num + ' cobrado y entregado!', 'ok');
+    await trace('apartado_cobrado', a.co, 'Cobro apartado ' + a.num + ' - ' + a.clientName, eur(a.tot) + ' - ' + pay);
+    setTimeout(function() { showInvoice(v); }, 350);
+  } catch(e) { toast('Error: ' + e.message, 'err'); console.error(e); }
+}
+
+async function cancelarApartado(id) {
+  var a = (S._apartados || []).find(function(x) { return x.id === id; });
+  if (!a) return;
+  if (!confirm('¿Cancelar el apartado ' + a.num + '?')) return;
+  a.estado = 'cancelado';
+  try {
+    var idx = S._apartados.findIndex(function(x) { return x.id === id; });
+    if (idx !== -1) S._apartados[idx] = a;
+    await supa.upsert('apartados', toDBApd(a));
+    renderApartados();
+    toast('Apartado cancelado', 'wrn');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+function renderApartados() {
+  var srch   = (document.getElementById('aptSrch')?.value || '').toLowerCase();
+  var estado = document.getElementById('aptEstado')?.value || 'all';
+  var co     = document.getElementById('aptCo')?.value || 'all';
+  var apts   = (S._apartados || []).filter(function(a) {
+    return (estado === 'all' || a.estado === estado)
+      && (co === 'all' || a.co === co)
+      && (!srch || a.clientName.toLowerCase().includes(srch) || a.num.toLowerCase().includes(srch));
+  });
+
+  // KPIs
+  var pending = (S._apartados || []).filter(function(a) { return a.estado === 'pendiente'; });
+  var entregados = (S._apartados || []).filter(function(a) { return a.estado === 'entregado'; });
+  var totalResta = pending.reduce(function(s, a) { return s + a.resta; }, 0);
+  var totalAnt   = pending.reduce(function(s, a) { return s + a.anticipo; }, 0);
+  var kp = document.getElementById('aptKPend');    if (kp) kp.textContent = pending.length;
+  var ke = document.getElementById('aptKEnt');     if (ke) ke.textContent = entregados.length;
+  var kr = document.getElementById('aptKResta');   if (kr) kr.textContent = eur(totalResta);
+  var ka = document.getElementById('aptKAnticipo');if (ka) ka.textContent = eur(totalAnt);
+
+  // Tabla
+  var tb = document.getElementById('aptTbody');
+  if (!tb) return;
+  if (!apts.length) {
+    tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--text-3)">Sin apartados</td></tr>';
+    return;
+  }
+  var estadoTag = { pendiente: 'tag-low', entregado: 'tag-ok', cancelado: 'tag-out' };
+  var estadoLbl = { pendiente: 'Pendiente', entregado: 'Entregado', cancelado: 'Cancelado' };
+  tb.innerHTML = apts.map(function(a) {
+    var prods = a.items.slice(0, 3).map(function(i) { return (i.emoji || '') + ' ' + i.name + ' x' + i.qty; }).join(', ');
+    if (a.items.length > 3) prods += ' ...+' + (a.items.length - 3) + ' más';
+    var acciones = '';
+    if (a.estado === 'pendiente') {
+      acciones += '<button class="btn btn-pri" style="font-size:.7rem;padding:.28rem .6rem;" onclick="abrirCobrarApt(\'' + a.id + '\')">Cobrar</button> ';
+      acciones += '<button class="btn btn-sec" style="font-size:.7rem;padding:.28rem .6rem;" onclick="openApartadoModal(\'' + a.id + '\')">Editar</button> ';
+      acciones += '<button class="btn btn-sec" style="font-size:.7rem;padding:.28rem .6rem;color:var(--red);" onclick="cancelarApartado(\'' + a.id + '\')">Cancelar</button>';
+    } else {
+      acciones = '<span style="color:var(--text-3);font-size:.75rem;">' + (a.estado === 'entregado' ? dtShort(a.tsEntrega || a.tsCreacion) : 'Cancelado') + '</span>';
+    }
+    return '<tr>'
+      + '<td style="font-weight:700;color:var(--accent);">' + a.num + '</td>'
+      + '<td>' + a.clientName + '</td>'
+      + '<td><span class="tag tag-' + a.co + '" style="font-size:.65rem;">' + (a.co === 'sol' ? 'SL' : 'SP') + '</span></td>'
+      + '<td style="font-size:.75rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + prods + '</td>'
+      + '<td style="font-weight:700;">' + eur(a.tot) + '</td>'
+      + '<td style="color:var(--green);">' + eur(a.anticipo) + '</td>'
+      + '<td style="color:var(--red);font-weight:600;">' + eur(a.resta) + '</td>'
+      + '<td style="font-size:.75rem;">' + (a.fechaEntrega ? dtShort(a.fechaEntrega) : '-') + '</td>'
+      + '<td><span class="tag ' + (estadoTag[a.estado] || '') + '" style="font-size:.65rem;">' + (estadoLbl[a.estado] || a.estado) + '</span></td>'
+      + '<td>' + acciones + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+window.openApartadoModal  = openApartadoModal;
+window.guardarApartado    = guardarApartado;
+window.abrirCobrarApt     = abrirCobrarApt;
+window.confirmarCobrarApt = confirmarCobrarApt;
+window.cancelarApartado   = cancelarApartado;
+window.renderApartados    = renderApartados;
+window.onAptProdSearch    = onAptProdSearch;
+window.aptAddProd         = aptAddProd;
+window.aptChQty           = aptChQty;
+window.aptRmItem          = aptRmItem;
+window.calcAptTotals      = calcAptTotals;
+window.cobAptCalcCambio   = cobAptCalcCambio;
 
 document.addEventListener('DOMContentLoaded', init);
 

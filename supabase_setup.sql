@@ -72,6 +72,31 @@ create table if not exists config (
   value text
 );
 
+-- ── APARTADOS ──────────────────────────────────────
+create table if not exists apartados (
+  id            text primary key,
+  co            text not null check (co in ('sol','lic')),
+  num           text not null,
+  client_id     text references clientes(id) on delete set null,
+  client_name   text not null default 'Genérico',
+  items         jsonb not null default '[]',
+  sub           numeric(10,2) default 0,
+  disc          numeric(10,2) default 0,
+  dp            numeric(5,2)  default 0,
+  tax           numeric(10,2) default 0,
+  tot           numeric(10,2) default 0,
+  anticipo      numeric(10,2) default 0,
+  resta         numeric(10,2) default 0,
+  estado        text not null default 'pendiente' check (estado in ('pendiente','entregado','cancelado')),
+  fecha_entrega date,
+  nota          text,
+  ts_creacion   timestamptz default now(),
+  ts_entrega    timestamptz
+);
+
+alter table apartados enable row level security;
+create policy "anon_all_apartados" on apartados for all to anon using (true) with check (true);
+
 -- Valores iniciales de config
 insert into config (key, value) values
   ('footSol', '¡Gracias por tu visita! · El Sol Latino'),
