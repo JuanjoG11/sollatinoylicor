@@ -260,7 +260,7 @@ function renderProdGrid() {
     var em = p.emoji ? p.emoji : '';
     return '<div class="p-card '+cls+'" onclick="addToCart(\''+p.id+'\')">'
       + '<span class="pc-co '+p.co+'">'+(p.co==='sol'?'SL':'SP')+'</span>'
-      + (em ? '<span class="pc-em">'+em+'</span>' : '<span class="pc-em" style="font-size:1.5rem;opacity:.3">[ ]</span>')
+      + (em ? '<span class="pc-em">'+em+'</span>' : '<span class="pc-em" style="opacity:.18"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>')
       + '<div class="pc-nm">'+p.name+'</div>'
       + '<div class="pc-pr">'+eur(p.price)+'</div>'
       + '<div class="pc-st '+st+'">'+stl+'</div>'
@@ -487,6 +487,8 @@ function showInvoice(v) {
   var foot   = isLic ? S.cfg.footLic : S.cfg.footSol;
   var change = v.cashRec ? v.cashRec - v.tot : 0;
 
+  var igHandle = isLic ? '@LICORES_SAN_PEDRO' : '@EL.SOL.LATINO';
+
   document.getElementById('invoice-box').innerHTML =
     '<div style="font-family:Inter,sans-serif;color:#111;max-width:500px;margin:0 auto;">'
     +'<div style="background:linear-gradient(135deg,'+col+','+col2+');color:#fff;padding:1.5rem;border-radius:12px 12px 0 0;text-align:center;">'
@@ -522,9 +524,14 @@ function showInvoice(v) {
     +(v.vendedor&&v.vendedor!=='Sin especificar'?'<div style="margin-top:.3rem;font-size:.68rem;color:#9CA3AF;">Vendedor: <strong style="color:#6B7280;">'+v.vendedor+'</strong></div>':'')
     +(v.nota?'<div style="margin-top:.25rem;font-size:.68rem;color:#9CA3AF;">Nota: <em style="color:#6B7280;">'+v.nota+'</em></div>':'')
     +'</div>'
-    +'<div style="background:linear-gradient(135deg,'+col+','+col2+');color:#fff;padding:.85rem 1.2rem;border-radius:0 0 12px 12px;text-align:center;">'
+    +'<div style="background:linear-gradient(135deg,'+col+','+col2+');color:#fff;padding:1rem 1.2rem;border-radius:0 0 12px 12px;text-align:center;">'
     +'<div style="font-size:.8rem;font-weight:600;">'+foot+'</div>'
-    +'<div style="font-size:.6rem;opacity:.65;margin-top:.18rem;">Sistema POS - Sol Latino & Licores San Pedro</div></div></div>';
+    +'<div style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.55rem;background:rgba(255,255,255,.15);border-radius:100px;padding:.28rem .75rem;">'
+    +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>'
+    +'<span style="font-size:.72rem;font-weight:700;letter-spacing:.3px;">'+igHandle+'</span>'
+    +'</div>'
+    +'<div style="font-size:.58rem;opacity:.55;margin-top:.4rem;">Sistema POS - Sol Latino &amp; Licores San Pedro</div>'
+    +'</div></div>';
 
   document.getElementById('mInvoice').classList.remove('hidden');
 }
@@ -535,41 +542,80 @@ function printInvoice() {
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>body{font-family:Inter,sans-serif;margin:0;padding:1rem;}@page{margin:1cm;}</style></head><body>'+html+'</body></html>');
   w.document.close(); w.onload=()=>w.print();
 }
-function dlPDF() {
-  if (!window.jspdf) { printInvoice(); return; }
-  var { jsPDF } = window.jspdf;
-  var v = curInvoice; if (!v) return;
-  var isLic = v.co==='lic';
-  var coName = isLic?'Licores San Pedro':'El Sol Latino';
-  var colR = isLic?[29,78,216]:[249,115,22];
-  var doc = new jsPDF({unit:'mm',format:'a5'});
-  var W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight();
-  doc.setFillColor(...colR); doc.rect(0,0,W,28,'F');
-  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(16);
-  doc.text(coName, W/2, 11, {align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(8);
-  doc.text(isLic?'Licor - Rumba - Snacks':'Pequenos placeres, grandes momentos!', W/2, 18, {align:'center'});
-  doc.text(v.invNum+' - '+dtFull(v.ts), W/2, 24, {align:'center'});
-  doc.setTextColor(0,0,0); doc.setFontSize(8); var y=34;
-  doc.text('Cliente: '+v.clientName, 10, y); y+=6;
-  doc.autoTable({ startY:y, head:[['Producto','Cant.','P.Unit','Total']],
-    body:v.items.map(i=>[i.name,'x'+i.qty,eur(i.price),eur(i.price*i.qty)]),
-    headStyles:{fillColor:colR,textColor:[255,255,255],fontSize:7},
-    bodyStyles:{fontSize:7}, margin:{left:10,right:10}, styles:{cellPadding:1.5} });
-  y=doc.lastAutoTable.finalY+5; var c1=90,c2=W-10;
-  doc.setFontSize(8);
-  doc.text('Subtotal:', c1, y); doc.text(eur(v.sub), c2, y, {align:'right'}); y+=4;
-  if(v.disc>0){ doc.text('Descuento ('+v.dp+'%):', c1, y); doc.text('-'+eur(v.disc), c2, y, {align:'right'}); y+=4; }
-  doc.text('IVA 21%:', c1, y); doc.text(eur(v.tax), c2, y, {align:'right'}); y+=3;
-  doc.line(c1,y,c2,y); y+=4;
-  doc.setFont('helvetica','bold'); doc.setFontSize(11);
-  doc.text('TOTAL:', c1, y); doc.text(eur(v.tot), c2, y, {align:'right'});
-  doc.setFillColor(...colR); doc.rect(0,H-14,W,14,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','normal');
-  doc.text(isLic?S.cfg.footLic:S.cfg.footSol, W/2, H-8, {align:'center'});
-  doc.text('Sistema POS - Sol Latino & Licores San Pedro', W/2, H-3, {align:'center'});
-  doc.save('Factura_'+v.invNum+'.pdf');
-  toast('PDF guardado', 'ok');
+async function dlPDF() {
+  var v = curInvoice;
+  if (!v) return;
+
+  // Necesitamos html2canvas y jsPDF
+  if (!window.html2canvas || !window.jspdf) {
+    printInvoice();
+    toast('Generando PDF via impresión...', 'inf');
+    return;
+  }
+
+  var btn = document.querySelector('.modal-ft .btn-pri');
+  var origTxt = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Generando...'; }
+
+  try {
+    var box = document.getElementById('invoice-box');
+
+    // Expandir el box para capturar todo sin recortar
+    box.classList.add('capturing');
+
+    // Esperar un frame para que el layout se recalcule
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    // Capturar el div tal como se ve, a doble resolución para nitidez
+    var canvas = await html2canvas(box, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: box.scrollWidth,
+      height: box.scrollHeight,
+      windowWidth: box.scrollWidth,
+      windowHeight: box.scrollHeight
+    });
+
+    // Restaurar
+    box.classList.remove('capturing');
+
+    var imgData = canvas.toDataURL('image/png');
+
+    var { jsPDF } = window.jspdf;
+
+    // Calcular dimensiones: ajustar el PDF al ancho del contenido capturado
+    var pxW = canvas.width;
+    var pxH = canvas.height;
+    var ratio = pxH / pxW;
+
+    // Ancho del PDF en mm (A5 ancho = 148mm, dejamos márgenes)
+    var pdfW = 148;
+    var pdfH = Math.round(pdfW * ratio);
+
+    // Si es muy largo, usamos A4
+    if (pdfH > 297) { pdfW = 210; pdfH = Math.round(pdfW * ratio); }
+
+    var doc = new jsPDF({
+      unit: 'mm',
+      format: [pdfW, pdfH],
+      orientation: 'portrait'
+    });
+
+    doc.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+    doc.save('Factura_' + v.invNum + '.pdf');
+    toast('PDF guardado', 'ok');
+
+  } catch (e) {
+    console.error('dlPDF:', e);
+    document.getElementById('invoice-box').classList.remove('capturing');
+    toast('Error generando PDF, usando impresión', 'wrn');
+    printInvoice();
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = origTxt; }
+  }
 }
 
 function renderProdsTable() {
