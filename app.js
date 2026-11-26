@@ -1505,6 +1505,78 @@ function guardarFoto() {
   toast('Foto adjuntada a la venta','ok');
 }
 
+// Nueva deuda manual
+function openNuevaDeudaModal() {
+  // Poblar selector de clientes
+  var sel = document.getElementById('ndCliente');
+  if (sel) {
+    sel.innerHTML = '<option value="">Cliente genérico</option>'
+      + DB.clients().map(function(c) { return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('');
+  }
+  // Empresa por defecto = empresa activa
+  var ndCo = document.getElementById('ndCo');
+  if (ndCo) ndCo.value = S.co;
+  // Limpiar campos
+  ['ndMonto','ndNota','ndVenc'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var ndAnt = document.getElementById('ndAnticipo');
+  if (ndAnt) ndAnt.value = '0';
+  document.getElementById('mNuevaDeuda').classList.remove('hidden');
+}
+
+async function guardarNuevaDeuda() {
+  var co      = document.getElementById('ndCo').value;
+  var cId     = document.getElementById('ndCliente').value || null;
+  var cNm     = cId ? (DB.clients().find(function(c) { return c.id === cId; })?.name || 'Genérico') : 'Genérico';
+  var monto   = parseFloat(document.getElementById('ndMonto').value) || 0;
+  var anticipo = Math.min(parseFloat(document.getElementById('ndAnticipo').value) || 0, monto);
+  var venc    = document.getElementById('ndVenc').value || null;
+  var nota    = document.getElementById('ndNota').value.trim() || '';
+
+  if (monto <= 0) { toast('Ingresa un monto válido', 'wrn'); return; }
+
+  var pf = co === 'sol' ? 'SL' : 'SP';
+  var yr = new Date().getFullYear();
+  var n  = (S._deudas || []).filter(function(d) { return d.co === co; }).length + 1;
+  var invNum = pf + '-D-' + yr + '-' + String(n).padStart(4, '0');
+
+  var deuda = {
+    id: uid(), co: co, clientId: cId, clientName: cNm,
+    ventaId: null, invNum: invNum,
+    montoTotal: monto, montoPagado: anticipo, montoDeuda: Math.max(0, monto - anticipo),
+    estado: anticipo >= monto ? 'pagado' : (anticipo > 0 ? 'parcial' : 'pendiente'),
+    items: [], fotoUrl: null, vendedor: '', nota: nota,
+    tsCreacion: new Date().toISOString(),
+    tsVencimiento: venc ? new Date(venc).toISOString() : null,
+    tsPagado: anticipo >= monto ? new Date().toISOString() : null,
+    pagos: anticipo > 0 ? [{ id: uid(), monto: anticipo, metodo: 'efectivo', ts: new Date().toISOString(), nota: 'Anticipo inicial' }] : []
+  };
+
+  try {
+    S._deudas.unshift(deuda);
+    await supa.insert('deudas', toDBDeuda(deuda));
+    // Actualizar saldo cliente
+    if (cId) {
+      var c = DB.clients().find(function(x) { return x.id === cId; });
+      if (c) {
+        c.saldoDeuda = (c.saldoDeuda || 0) + deuda.montoDeuda;
+        await supa.update('clientes', c.id, { saldo_deuda: c.saldoDeuda });
+      }
+    }
+    document.getElementById('mNuevaDeuda').classList.add('hidden');
+    renderDeudas();
+    toast('Deuda ' + invNum + ' registrada', 'ok');
+    await trace('deuda', co, 'Deuda manual ' + invNum + ' - ' + cNm, eur(monto));
+  } catch(e) {
+    toast('Error: ' + e.message, 'err');
+    console.error(e);
+  }
+}
+
+window.openNuevaDeudaModal = openNuevaDeudaModal;
+window.guardarNuevaDeuda   = guardarNuevaDeuda;
+
 window.filterDeudas = filterDeudas;
 window.renderDeudas = renderDeudas;
 window.verDeuda = verDeuda;
