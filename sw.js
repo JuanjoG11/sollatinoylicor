@@ -3,8 +3,8 @@
    Estrategia: Cache-first para assets, Network-first para Supabase
 ===================================================== */
 
-const CACHE_NAME  = 'pos-v1';
-const CACHE_STATIC = 'pos-static-v1';
+const CACHE_NAME  = 'pos-v3';
+const CACHE_STATIC = 'pos-static-v3';
 
 // Assets que se cachean en la instalacion
 const STATIC_ASSETS = [
@@ -53,7 +53,7 @@ self.addEventListener('activate', function(e) {
     caches.keys().then(function(keys) {
       return Promise.all(
         keys
-          .filter(function(key) { return key !== CACHE_STATIC; })
+          .filter(function(key) { return key !== CACHE_STATIC && key !== CACHE_NAME; })
           .map(function(key) {
             console.log('[SW] Deleting old cache:', key);
             return caches.delete(key);

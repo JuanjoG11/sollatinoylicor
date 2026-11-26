@@ -217,6 +217,13 @@ function buildVencTag(p) {
 }
 window.buildVencTag = buildVencTag;
 
+// IVA por empresa: Sol Latino 5.5%, San Pedro (Licores) 20%
+function taxRate(co) {
+  return co === 'lic' ? 0.20 : 0.055;
+}
+function taxLabel(co) {
+  return co === 'lic' ? 'IVA 20%' : 'IVA 5.5%';
+}
 
 function toggleSb() {
   if (window.innerWidth <= 768) document.getElementById('sidebar').classList.toggle('open');
@@ -236,6 +243,7 @@ function switchCo(co) {
   document.getElementById('sbPill').className = 'sb-pill ' + co;
   if (document.getElementById('cfgCo')) document.getElementById('cfgCo').value = co;
   renderProdGrid();
+  calcTotals();
   toast('Empresa: ' + (co==='sol' ? 'El Sol Latino' : 'Licores San Pedro'), 'inf');
 }
 function cycleCo() { switchCo(S.co === 'sol' ? 'lic' : 'sol'); }
@@ -348,12 +356,14 @@ function calcTotals() {
   var dp   = parseFloat(document.getElementById('discIn').value) || 0;
   var disc = sub*dp/100;
   var net  = sub-disc;
-  var tax  = net*0.21;
+  var tax  = net*taxRate(S.co);
   var tot  = net+tax;
   document.getElementById('sumSub').textContent   = eur(sub);
   document.getElementById('sumDisc').textContent  = '-'+eur(disc);
   document.getElementById('sumTax').textContent   = eur(tax);
   document.getElementById('sumTotal').textContent = eur(tot);
+  var taxLbl = document.getElementById('sumTaxLabel');
+  if (taxLbl) taxLbl.textContent = taxLabel(S.co);
   calcChange();
 }
 function calcChange() {
@@ -362,7 +372,7 @@ function calcChange() {
   var dp   = parseFloat(document.getElementById('discIn').value) || 0;
   var disc = sub * dp / 100;
   var net  = sub - disc;
-  var tax  = net * 0.21;
+  var tax  = net * taxRate(S.co);
   var tot  = net + tax;
   var rec  = parseFloat(document.getElementById('cashIn').value) || 0;
   var ch   = rec - tot;
@@ -391,7 +401,7 @@ async function checkout() {
   var dp   = parseFloat(document.getElementById('discIn').value) || 0;
   var disc = sub*dp/100;
   var net  = sub-disc;
-  var tax  = net*0.21;
+  var tax  = net*taxRate(S.co);
   var tot  = net+tax;
   if (S.pay === 'efectivo') {
     var rec = parseFloat(document.getElementById('cashIn').value);
@@ -517,7 +527,7 @@ function showInvoice(v) {
     +'<div style="background:#F9FAFB;padding:.8rem 1.2rem;border-top:2px dashed #E5E7EB;">'
     +'<div style="display:flex;justify-content:space-between;font-size:.76rem;color:#6B7280;margin-bottom:.22rem;"><span>Subtotal</span><span>'+eur(v.sub)+'</span></div>'
     +(v.disc>0?'<div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.22rem;"><span>Descuento ('+v.dp+'%)</span><span style="color:#10B981;">-'+eur(v.disc)+'</span></div>':'')
-    +'<div style="display:flex;justify-content:space-between;font-size:.7rem;color:#9CA3AF;margin-bottom:.22rem;"><span>IVA 21%</span><span>'+eur(v.tax)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:.7rem;color:#9CA3AF;margin-bottom:.22rem;"><span>'+taxLabel(v.co)+'</span><span>'+eur(v.tax)+'</span></div>'
     +'<div style="display:flex;justify-content:space-between;font-size:1.05rem;font-weight:800;padding-top:.45rem;border-top:2px solid #E5E7EB;color:'+col+';"><span>TOTAL</span><span>'+eur(v.tot)+'</span></div>'
     +(v.pay==='efectivo'&&v.cashRec?'<div style="display:flex;justify-content:space-between;font-size:.74rem;color:#9CA3AF;margin-top:.28rem;"><span>Efectivo</span><span>'+eur(v.cashRec)+'</span></div><div style="display:flex;justify-content:space-between;font-size:.88rem;font-weight:700;color:#10B981;"><span>Cambio</span><span>'+eur(change)+'</span></div>':'')
     +'<div style="margin-top:.45rem;"><span style="font-size:.62rem;color:#9CA3AF;">Pago: </span><span style="font-size:.7rem;font-weight:700;padding:.1rem .38rem;border-radius:100px;background:'+col+'1A;color:'+col+';">'+v.pay.toUpperCase()+'</span></div>'
@@ -2401,11 +2411,12 @@ function aptAddProd(id) {
 }
 
 function calcAptTotals() {
+  var co   = document.getElementById('aptCo2')?.value || S.co;
   var sub  = _aptItems.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
   var dp   = parseFloat(document.getElementById('aptDesc').value) || 0;
   var disc = sub * dp / 100;
   var net  = sub - disc;
-  var tax  = net * 0.21;
+  var tax  = net * taxRate(co);
   var tot  = net + tax;
   var ant  = parseFloat(document.getElementById('aptAnticipo').value) || 0;
   var resta = Math.max(0, tot - ant);
@@ -2414,6 +2425,8 @@ function calcAptTotals() {
   document.getElementById('aptSumTax').textContent   = eur(tax);
   document.getElementById('aptSumTot').textContent   = eur(tot);
   document.getElementById('aptSumResta').textContent = eur(resta);
+  var taxLbl = document.getElementById('aptSumTaxLabel');
+  if (taxLbl) taxLbl.textContent = taxLabel(co);
 }
 
 function openApartadoModal(aId) {
@@ -2463,7 +2476,7 @@ async function guardarApartado() {
   var sub = _aptItems.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
   var disc = sub * dp / 100;
   var net  = sub - disc;
-  var tax  = net * 0.21;
+  var tax  = net * taxRate(co);
   var tot  = net + tax;
   var resta = Math.max(0, tot - ant);
   var fe  = document.getElementById('aptFechaEntrega').value || null;
